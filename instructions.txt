@@ -1,0 +1,12 @@
+#Create new environment:
+python3 -m venv name_venv
+#Activate env
+source name_venv/bin/activate
+#Deactivate env
+deactivate
+
+#See installed packages
+pip3 freeze
+#Save this as requirements
+pip3 freeze > requirements.txt
+
