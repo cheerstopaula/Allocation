@@ -11,8 +11,8 @@ The following code consists of functions to solve the course allocation problem 
 - openpyxl
 
 
-## Instructions
-
 ## Preliminary results
 
-![Drag Racing](nash_50.png)
+The three algorithms were run and compared for 50 different seeds. The algorithms are deterministic, however randomness was introduced by randomply generating students preferences for 50 students. The obtained values for Utilitarian Welfare and Nash Welfare (in logarithm and nuber of zeros) are shown below.
+
+![Nash Walfare](nash_50.png)
