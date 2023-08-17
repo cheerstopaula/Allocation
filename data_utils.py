@@ -2,6 +2,10 @@ import pandas as pd
 
 class Schedule:
     def __init__(self,filename):
+        '''
+        Object Schedule has 6 attributes, inherited from the excel file with the schedule, as lists:
+        - subjects, - catalog, - capacity, - section, - days, - slot.
+        '''
         attributes=self.build_atributes(filename)
         self.subjects=attributes[0]
         self.catalog=attributes[1]
@@ -10,6 +14,9 @@ class Schedule:
         self.days=attributes[4]
         self.slot=attributes[5]
     def build_atributes(self, filename):
+        '''
+        Build, from excel file, all 6 Schedule atributes
+        '''
         classes = pd.read_excel(filename)
         subjects=classes['Subject'].to_list()
         catalog=classes['Catalog'].to_list()
