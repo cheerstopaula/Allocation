@@ -32,7 +32,7 @@ class Agent:
         slots=set(slots)
         return min(len(slots), self.cap)
 
-    def marginalContribution(self,bundle,item):
+    def marginal_contribution(self,bundle,item):
         '''
         Compute the marginal utility the agent gets form adding a particular item to a particular bundle of items
 
@@ -41,7 +41,6 @@ class Agent:
         @return: marginal utility obtained by adding item to bundle (either 0 or 1).
         '''
         if item.item_id not in self.desired_items:
-            print('if 1')
             return 0
         T=bundle.copy()
         x=[*range(len(bundle))]
@@ -55,10 +54,38 @@ class Agent:
             slot=T[i].timeslot
             slots.append(slot)
             if slot==item.timeslot:
-                print('if 2')
                 return 0
         slots=set(slots)
         if len(slots)>=self.cap:
-            print('if 3')
             return 0
         return 1
+    
+
+
+    def exchange_contribution(self,bundle,og_item, new_item):
+        '''
+        Determine whether the agent can exchange original_item for new_item and keep the same utility
+
+        @param bundle: list of items (from class Item)
+        @param og_item: original item in the bundle (from class Item)
+        @param new_item: item we might exchange the og item for (from class Item)
+        @return: True if utility obtained by exchanging item is the same or more, False otherwise.
+        '''
+        T=bundle.copy()
+        for i in range(len(T)):
+            index=0
+            if T[i].item_id == og_item.item_id:
+                index=i
+        T.pop(index)
+
+        val=self.valuation(T)
+        og_mg=self.marginal_contribution(T,og_item)
+        new_mg=self.marginal_contribution(T, new_item)
+        og_val=val+og_mg
+        new_val=val+new_mg
+        if og_val==new_val:
+            return True
+        else:
+            return False
+
+
