@@ -1,7 +1,7 @@
 from data_utils import Schedule
 
 class Item:
-    def __init__(self,item_id, copies,timeslot):
+    def __init__(self,item_id, capacity,timeslot):
         '''
         Object Item has three parameters:
         - @param item_id: course identification subject+catalog+'-"+section (Ex: CICS110-3)
@@ -9,7 +9,7 @@ class Item:
         - @param timeslot: course schedule day+'-'+slot (Ex: Tue Thu -01:00 PM - 02:15 PM)
         '''
         self.item_id=item_id
-        self.copies=copies
+        self.capacity=capacity
         self.timeslot=timeslot
 
 def generate_items_from_schedule(filename):

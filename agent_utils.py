@@ -70,6 +70,8 @@ class Agent:
         @param og_item: original item in the bundle (from class Item)
         @param new_item: item we might exchange the og item for (from class Item)
         @return: True if utility obtained by exchanging item is the same or more, False otherwise.
+
+        THIS FUNCTION CAN PROBABLY BE BUILT MORE EFFICIENTLY
         '''
         T=bundle.copy()
         for i in range(len(T)):
