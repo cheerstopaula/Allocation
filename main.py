@@ -1,9 +1,14 @@
 # %%
 from agent_utils import Agent
-from item_utils import generate_items_from_schedule
-from allocation_utils import Allocation
+from item_utils import generate_items_from_schedule, get_bundle_from_allocation_matrix
+from allocation_utils import initialize_allocation_matrix, initialize_exchange_graph, add_agent_to_exchange_graph, find_shortest_path, find_agent
 import networkx as nx
 import matplotlib.pyplot as plt
+import random
+import numpy as np
+seed = 123
+random.seed(seed)
+np.random.seed(seed)
 
 
 items=generate_items_from_schedule('fall2023schedule.xlsx')
@@ -28,85 +33,76 @@ items[40].capacity=1
 #Define reduced list of items
 items2=[items[0], items[1],items[20],items[25], items[30], items[40]]
 
-#X=Allocation(items2, agents, [[items[1],items[40]],[items[0],items[20]],[items[25]],[items[30]]],[[1],[0],[1],[2],[3],[0]])
 
+#initialize allocation and exchange_graph
+X=initialize_allocation_matrix(items2, agents)
+print(X)
+G=initialize_exchange_graph(items2)
+nx.draw(G, with_labels = True)
+plt.show()
 
-#Initialize allocation
-X=Allocation(items2, agents, [],[])
 
 #Pick an agent 
 agent_picked=1
-s=len(items2)+1
-X.exchange_graph.add_node(s)
-for i in range(len(items2)):
-    g=items2[i]
-    if agents[agent_picked-1].marginal_contribution(X.allocation[agent_picked],g)==1:
-        X.exchange_graph.add_edge(s, i)
+G=add_agent_to_exchange_graph(G,X,items2,agents, agent_picked)
+nx.draw(G, with_labels = True)
+plt.show()
 
-#nx.draw(X.exchange_graph, with_labels = True)
-p = nx.shortest_path(X.exchange_graph, source=s, target=6) 
-#print(p)
-#plt.show()
+p = find_shortest_path(G)
+print(p)
 
-# remove the agent picked and all those edges
-X.exchange_graph.remove_node(s)
-#nx.draw(X.exchange_graph, with_labels = True)
-#plt.show()
-
-#Next to last node in the path is always going to be the item taken from the unnasigned pile
 item_picked=p[len(p)-2]
 print('item taken from unnasigned pile: ',item_picked)
+
+# remove the agent picked and all those edges
+G.remove_node('s')
+
 #Add item to the allocation of agent_picked
-X.allocation[agent_picked].append(items2[item_picked])
-print('Allocation', X.allocation)
-#add agent to the list of agents owning each item
-X.owners[item_picked].append(agent_picked)
-print('Owners:', X.owners)
-#Add edges from that item to the correspoing ones according to the new owner
+X[item_picked,agent_picked]=1
+print(X)
+
+#Add edges from that item to the corresponding ones according to the new owner
 for i in range(len(items2)):
     g=items2[i]
+    bundle=get_bundle_from_allocation_matrix(X,items2,agent_picked)
     if i!=item_picked:
-        if agents[agent_picked-1].exchange_contribution(X.allocation[agent_picked-1],items2[item_picked],g)==1:
-            X.exchange_graph.add_edge(item_picked, i)
+        if agents[agent_picked-1].exchange_contribution(bundle,items2[item_picked],g)==1:
+            G.add_edge(item_picked, i)
+
+nx.draw(G, with_labels = True)
+plt.show()
+
+#Check if theres still capacity in the class that was taken. 
+if sum(X[item_picked])> items2[item_picked].capacity:
+    G.remove_edge(item_picked,'t')
+    X[item_picked,0]=0
+
+print(X)
 
 
-
-
-#reduce the capacity by one (a seat from the class was taken)
-items2[item_picked].capacity+=-1
-print('reduce item capacity: ',items2[item_picked].capacity)
-print(len(X.allocation))
-#if the capacity is reduced to zero, remove item from unassigned pile, agent 0 from owners, and edge from item_picked to t
-
-if items2[item_picked].capacity==0:
-    X.owners[0].remove(item_picked)
-    X.exchange_graph.remove_edge(item_picked,s-1)
-    print('AAA', item_picked, s-1)
-    for i in range(len(X.allocation[0])):
-        g=X.allocation[0][i]
-        if g.item_id==items2[item_picked].item_id:
-            X.allocation[0].pop(i)
-            break
-        
-print('Allocation', X.allocation)
-print('Owners:', X.owners)
-
-nx.draw(X.exchange_graph, with_labels = True)
+nx.draw(G, with_labels = True)
 plt.show()
 
 
 
-#Lets now pick a different agent, say agent 4, so we need to force to take item 0 from agent 1
+
+
+
+####START FROM SCRATCHHHHH
+#Pick an agent 
 agent_picked=4
-s=len(items2)+1
-X.exchange_graph.add_node(s)
-print(s)
-for i in range(len(items2)):
-    g=items2[i]
-    if agents[agent_picked-1].marginal_contribution(X.allocation[agent_picked-1],g)==1:
-        X.exchange_graph.add_edge(s, i)
+G=add_agent_to_exchange_graph(G,X,items2,agents, agent_picked)
 
-p = nx.shortest_path(X.exchange_graph, source=s, target=6) 
-print(p)
-nx.draw(X.exchange_graph, with_labels = True)
+nx.draw(G, with_labels = True)
 plt.show()
+
+
+p = find_shortest_path(G)
+print(p)
+
+print(find_agent(agents, items2, X,items2[p[2]],items2[p[1]]))
+print(G.has_edge('s', 0))
+print(G.has_edge('s', 2))
+
+
+# %%
