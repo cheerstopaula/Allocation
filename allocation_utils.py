@@ -46,7 +46,49 @@ def find_agent(agents,items,X,current_item,last_item):
     for i in range(len(agents)):
         bundle=get_bundle_from_allocation_matrix(X,items,i)
         if agents[i].exchange_contribution(bundle,current_item, last_item):
-            return i
+            return i+1
     print('Agent not found')
 
-#def unpdate_allocation(X,path,agents,items):
+def get_owners_list(X,item_index):
+    item_list=X[item_index]
+    owners_list=np.nonzero(item_list)
+    return owners_list[0]
+
+def update_allocation(X,G,path,agents,items,agent_picked):
+    path=path[1:-1]
+    last_item=path[-1]
+    if sum(X[last_item])>= items[last_item].capacity:
+        G.remove_edge(last_item,'t')
+        X[last_item,0]=0
+    while len(path)>0:
+        last_item=path.pop(len(path)-1)
+        if len(path)>0:
+            next_to_last_item=path[-1]
+            current_agent=find_agent(agents,items,X,items[next_to_last_item],items[last_item])
+            X[last_item,current_agent]=1
+            X[next_to_last_item,current_agent]=0
+        else:
+            X[last_item,agent_picked]=1
+
+        owners_list=get_owners_list(X,last_item)
+        for owner in owners_list:
+            for i in range(len(items)):
+                item=items[i]
+                agent=agents[int(owner)-1]
+                bundle=get_bundle_from_allocation_matrix(X, items, owner)
+                exchangeable=agent.exchange_contribution(bundle,items[last_item], item)
+                if exchangeable:
+                    if not G.has_edge(last_item, i):
+                        if last_item!=i:
+                            G.add_edge(last_item,i)
+                else:
+                    if G.has_edge(last_item, i):
+                        G.remove_edge(last_item,i)
+    return X,G
+
+
+
+
+        
+    
+

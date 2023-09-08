@@ -1,7 +1,7 @@
 # %%
 from agent_utils import Agent
 from item_utils import generate_items_from_schedule, get_bundle_from_allocation_matrix
-from allocation_utils import initialize_allocation_matrix, initialize_exchange_graph, add_agent_to_exchange_graph, find_shortest_path, find_agent
+from allocation_utils import initialize_allocation_matrix, initialize_exchange_graph, add_agent_to_exchange_graph, find_shortest_path, update_allocation
 import networkx as nx
 import matplotlib.pyplot as plt
 import random
@@ -48,40 +48,44 @@ G=add_agent_to_exchange_graph(G,X,items2,agents, agent_picked)
 nx.draw(G, with_labels = True)
 plt.show()
 
-p = find_shortest_path(G)
-print(p)
 
-item_picked=p[len(p)-2]
-print('item taken from unnasigned pile: ',item_picked)
+#Find shortest path
+path = find_shortest_path(G)
 
 # remove the agent picked and all those edges
 G.remove_node('s')
 
-#Add item to the allocation of agent_picked
-X[item_picked,agent_picked]=1
-print(X)
+item_picked=path[len(path)-2]
+print('item taken from unnasigned pile: ',item_picked)
 
-#Add edges from that item to the corresponding ones according to the new owner
-for i in range(len(items2)):
-    g=items2[i]
-    bundle=get_bundle_from_allocation_matrix(X,items2,agent_picked)
-    if i!=item_picked:
-        if agents[agent_picked-1].exchange_contribution(bundle,items2[item_picked],g)==1:
-            G.add_edge(item_picked, i)
-
+X,G=update_allocation(X,G,path,agents,items2,agent_picked)
 nx.draw(G, with_labels = True)
+print(X)
 plt.show()
 
-#Check if theres still capacity in the class that was taken. 
-if sum(X[item_picked])> items2[item_picked].capacity:
-    G.remove_edge(item_picked,'t')
-    X[item_picked,0]=0
-
-print(X)
 
 
-nx.draw(G, with_labels = True)
-plt.show()
+# #Add edges from that item to the corresponding ones according to the new owner
+# for i in range(len(items2)):
+#     g=items2[i]
+#     bundle=get_bundle_from_allocation_matrix(X,items2,agent_picked)
+#     if i!=item_picked:
+#         if agents[agent_picked-1].exchange_contribution(bundle,items2[item_picked],g)==1:
+#             G.add_edge(item_picked, i)
+
+# nx.draw(G, with_labels = True)
+# plt.show()
+
+# #Check if theres still capacity in the class that was taken. 
+# if sum(X[item_picked])> items2[item_picked].capacity:
+#     G.remove_edge(item_picked,'t')
+#     X[item_picked,0]=0
+
+# print(X)
+
+
+# nx.draw(G, with_labels = True)
+# plt.show()
 
 
 
@@ -96,13 +100,14 @@ G=add_agent_to_exchange_graph(G,X,items2,agents, agent_picked)
 nx.draw(G, with_labels = True)
 plt.show()
 
+path = find_shortest_path(G)
+print(path)
 
-p = find_shortest_path(G)
-print(p)
+X,G=update_allocation(X,G,path,agents,items2,agent_picked)
+nx.draw(G, with_labels = True)
+print(X)
+plt.show()
 
-print(find_agent(agents, items2, X,items2[p[2]],items2[p[1]]))
-print(G.has_edge('s', 0))
-print(G.has_edge('s', 2))
 
 
 # %%
