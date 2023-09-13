@@ -1,7 +1,7 @@
 # %%
 from agent_utils import Agent
 from item_utils import generate_items_from_schedule, get_bundle_from_allocation_matrix
-from allocation_utils import initialize_allocation_matrix, initialize_exchange_graph, add_agent_to_exchange_graph, find_shortest_path, update_allocation
+from allocation_utils import initialize_allocation_matrix, initialize_exchange_graph, add_agent_to_exchange_graph, find_shortest_path, update_allocation, update_exchange_graph
 import networkx as nx
 import matplotlib.pyplot as plt
 import random
@@ -56,7 +56,9 @@ print(path)
 G.remove_node('s')
 
 #Given the path found, update allocation and exchange graph
-X,G=update_allocation(X,G,path,agents,items2,agent_picked)
+X=update_allocation(X,path,agents,items2,agent_picked)
+G=update_exchange_graph(X,G,path,agents,items2)
+
 nx.draw(G, with_labels = True)
 print(X)
 plt.show()
@@ -74,77 +76,80 @@ print(path)
 G.remove_node('s')
 
 #Update allocation and exchange graph
-X,G=update_allocation(X,G,path,agents,items2,agent_picked)
+#Given the path found, update allocation and exchange graph
+X=update_allocation(X,path,agents,items2,agent_picked)
+G=update_exchange_graph(X,G,path,agents,items2)
+
 nx.draw(G, with_labels = True)
 print(X)
 plt.show()
 
-## Step 3
-#Pick an agent 
-agent_picked=3
-G=add_agent_to_exchange_graph(G,X,items2,agents, agent_picked)
-nx.draw(G, with_labels = True)
-plt.show()
+# ## Step 3
+# #Pick an agent 
+# agent_picked=3
+# G=add_agent_to_exchange_graph(G,X,items2,agents, agent_picked)
+# nx.draw(G, with_labels = True)
+# plt.show()
 
-#Find shortest path
-path = find_shortest_path(G)
-print(path)
-G.remove_node('s')
+# #Find shortest path
+# path = find_shortest_path(G)
+# print(path)
+# G.remove_node('s')
 
-#Update allocation and exchange graph
-X,G=update_allocation(X,G,path,agents,items2,agent_picked)
-nx.draw(G, with_labels = True)
-print(X)
-plt.show()
-
-
-## Step 4
-#Pick an agent 
-agent_picked=2
-G=add_agent_to_exchange_graph(G,X,items2,agents, agent_picked)
-nx.draw(G, with_labels = True)
-plt.show()
-
-#Find shortest path
-path = find_shortest_path(G)
-print(path)
-G.remove_node('s')
-
-#Update allocation and exchange graph
-X,G=update_allocation(X,G,path,agents,items2,agent_picked)
-nx.draw(G, with_labels = True)
-print(X)
-plt.show()
-
-## Step 5
-#Pick an agent 
-agent_picked=1
-G=add_agent_to_exchange_graph(G,X,items2,agents, agent_picked)
-nx.draw(G, with_labels = True)
-plt.show()
-
-#Find shortest path
-path = find_shortest_path(G)
-print(path)
-G.remove_node('s')
-
-#Update allocation and exchange graph
-X,G=update_allocation(X,G,path,agents,items2,agent_picked)
-nx.draw(G, with_labels = True)
-print(X)
-plt.show()
+# #Update allocation and exchange graph
+# X,G=update_allocation(X,G,path,agents,items2,agent_picked)
+# nx.draw(G, with_labels = True)
+# print(X)
+# plt.show()
 
 
+# ## Step 4
+# #Pick an agent 
+# agent_picked=2
+# G=add_agent_to_exchange_graph(G,X,items2,agents, agent_picked)
+# nx.draw(G, with_labels = True)
+# plt.show()
 
-## Step 5
-#Pick an agent 
-agent_picked=4
-G=add_agent_to_exchange_graph(G,X,items2,agents, agent_picked)
-nx.draw(G, with_labels = True)
-plt.show()
+# #Find shortest path
+# path = find_shortest_path(G)
+# print(path)
+# G.remove_node('s')
 
-#Find shortest path
-path = find_shortest_path(G)
-print(path)
-G.remove_node('s')
+# #Update allocation and exchange graph
+# X,G=update_allocation(X,G,path,agents,items2,agent_picked)
+# nx.draw(G, with_labels = True)
+# print(X)
+# plt.show()
+
+# ## Step 5
+# #Pick an agent 
+# agent_picked=1
+# G=add_agent_to_exchange_graph(G,X,items2,agents, agent_picked)
+# nx.draw(G, with_labels = True)
+# plt.show()
+
+# #Find shortest path
+# path = find_shortest_path(G)
+# print(path)
+# G.remove_node('s')
+
+# #Update allocation and exchange graph
+# X,G=update_allocation(X,G,path,agents,items2,agent_picked)
+# nx.draw(G, with_labels = True)
+# print(X)
+# plt.show()
+
+
+
+# ## Step 5
+# #Pick an agent 
+# agent_picked=4
+# G=add_agent_to_exchange_graph(G,X,items2,agents, agent_picked)
+# nx.draw(G, with_labels = True)
+# plt.show()
+
+# #Find shortest path
+# path = find_shortest_path(G)
+# print(path)
+# G.remove_node('s')
 # %%

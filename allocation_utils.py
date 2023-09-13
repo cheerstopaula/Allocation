@@ -54,11 +54,11 @@ def get_owners_list(X,item_index):
     owners_list=np.nonzero(item_list)
     return owners_list[0]
 
-def update_allocation(X,G,path,agents,items,agent_picked):
+def update_allocation(X,path_og,agents,items,agent_picked):
+    path=path_og.copy()
     path=path[1:-1]
     last_item=path[-1]
     if sum(X[last_item])>= items[last_item].capacity:
-        G.remove_edge(last_item,'t')
         X[last_item,0]=0
     while len(path)>0:
         last_item=path.pop(len(path)-1)
@@ -69,7 +69,17 @@ def update_allocation(X,G,path,agents,items,agent_picked):
             X[next_to_last_item,current_agent]=0
         else:
             X[last_item,agent_picked]=1
+    return X
 
+
+def update_exchange_graph(X,G,path_og,agents,items):
+    path=path_og.copy()
+    path=path[1:-1]
+    last_item=path[-1]
+    if sum(X[last_item])>= items[last_item].capacity:
+        G.remove_edge(last_item,'t')
+    while len(path)>0:
+        last_item=path.pop(len(path)-1)
         owners_list=get_owners_list(X,last_item)
         for owner in owners_list:
             for i in range(len(items)):
@@ -84,10 +94,7 @@ def update_allocation(X,G,path,agents,items,agent_picked):
                 else:
                     if G.has_edge(last_item, i):
                         G.remove_edge(last_item,i)
-    return X,G
-
-
-
+    return G
 
         
     
