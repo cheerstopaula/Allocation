@@ -1,7 +1,7 @@
 # %%
 from agent_utils import Agent
 from item_utils import generate_items_from_schedule, get_bundle_from_allocation_matrix
-from allocation_utils import initialize_allocation_matrix, initialize_exchange_graph, add_agent_to_exchange_graph, find_shortest_path, update_allocation, update_exchange_graph
+from allocation_utils import initialize_allocation_matrix, initialize_exchange_graph, pick_agent, get_max_items,add_agent_to_exchange_graph, find_shortest_path, update_allocation, update_exchange_graph
 import networkx as nx
 import matplotlib.pyplot as plt
 import random
@@ -22,6 +22,7 @@ agent3=Agent('student1',[items[0].item_id, items[1].item_id], 10)
 agent4=Agent('student1',[items[0].item_id], 10)
 agents=[agent1, agent2,agent3, agent4]
 
+
 #Generate reduced list of items with capacity of 1
 #Reduce capacities
 items[0].capacity=1
@@ -31,7 +32,7 @@ items[25].capacity=1
 items[30].capacity=1
 items[40].capacity=1
 items2=[items[0], items[1],items[20],items[25], items[30], items[40]]
-
+max_items=get_max_items(items2)
 
 #### Yankee Swap exercise! ####
 ## Initialize allocation and exchange_graph
@@ -43,7 +44,10 @@ plt.show()
 
 ## Step 1
 #Pick an agent and add to the exchange graph
-agent_picked=1
+print("##############")
+print("STEP 1")
+agent_picked=pick_agent(X, max_items)
+print(agent_picked)
 G=add_agent_to_exchange_graph(G,X,items2,agents, agent_picked)
 nx.draw(G, with_labels = True)
 plt.show()
@@ -65,7 +69,10 @@ plt.show()
 
 ## Step 2
 #Pick an agent 
-agent_picked=4
+print("##############")
+print("STEP 2")
+agent_picked=pick_agent(X, max_items)
+print(agent_picked)
 G=add_agent_to_exchange_graph(G,X,items2,agents, agent_picked)
 nx.draw(G, with_labels = True)
 plt.show()
@@ -84,72 +91,76 @@ nx.draw(G, with_labels = True)
 print(X)
 plt.show()
 
-# ## Step 3
-# #Pick an agent 
-# agent_picked=3
-# G=add_agent_to_exchange_graph(G,X,items2,agents, agent_picked)
-# nx.draw(G, with_labels = True)
-# plt.show()
+## Step 3
+#Pick an agent 
+print("##############")
+print("STEP 3")
+agent_picked=pick_agent(X, max_items)
+print(agent_picked)
+G=add_agent_to_exchange_graph(G,X,items2,agents, agent_picked)
+nx.draw(G, with_labels = True)
+plt.show()
 
-# #Find shortest path
-# path = find_shortest_path(G)
-# print(path)
-# G.remove_node('s')
+#Find shortest path
+path = find_shortest_path(G)
+print(path)
+G.remove_node('s')
 
-# #Update allocation and exchange graph
-# X,G=update_allocation(X,G,path,agents,items2,agent_picked)
-# nx.draw(G, with_labels = True)
-# print(X)
-# plt.show()
-
-
-# ## Step 4
-# #Pick an agent 
-# agent_picked=2
-# G=add_agent_to_exchange_graph(G,X,items2,agents, agent_picked)
-# nx.draw(G, with_labels = True)
-# plt.show()
-
-# #Find shortest path
-# path = find_shortest_path(G)
-# print(path)
-# G.remove_node('s')
-
-# #Update allocation and exchange graph
-# X,G=update_allocation(X,G,path,agents,items2,agent_picked)
-# nx.draw(G, with_labels = True)
-# print(X)
-# plt.show()
-
-# ## Step 5
-# #Pick an agent 
-# agent_picked=1
-# G=add_agent_to_exchange_graph(G,X,items2,agents, agent_picked)
-# nx.draw(G, with_labels = True)
-# plt.show()
-
-# #Find shortest path
-# path = find_shortest_path(G)
-# print(path)
-# G.remove_node('s')
-
-# #Update allocation and exchange graph
-# X,G=update_allocation(X,G,path,agents,items2,agent_picked)
-# nx.draw(G, with_labels = True)
-# print(X)
-# plt.show()
+#Update allocation and exchange graph
+X=update_allocation(X,path,agents,items2,agent_picked)
+G=update_exchange_graph(X,G,path,agents,items2)
+nx.draw(G, with_labels = True)
+print(X)
+plt.show()
 
 
+## Step 4
+#Pick an agent 
+print("##############")
+print("STEP 4")
+agent_picked=pick_agent(X, max_items)
+print(agent_picked)
+G=add_agent_to_exchange_graph(G,X,items2,agents, agent_picked)
+nx.draw(G, with_labels = True)
+plt.show()
 
-# ## Step 5
-# #Pick an agent 
-# agent_picked=4
-# G=add_agent_to_exchange_graph(G,X,items2,agents, agent_picked)
-# nx.draw(G, with_labels = True)
-# plt.show()
+#Find shortest path
+path = find_shortest_path(G)
+print(path)
+G.remove_node('s')
 
-# #Find shortest path
-# path = find_shortest_path(G)
-# print(path)
-# G.remove_node('s')
+#Update allocation and exchange graph
+X=update_allocation(X,path,agents,items2,agent_picked)
+G=update_exchange_graph(X,G,path,agents,items2)
+nx.draw(G, with_labels = True)
+print(X)
+plt.show()
+
+## Step 5
+#Pick an agent 
+print("##############")
+print("STEP 5")
+print('step 5', pick_agent(X, max_items))
+agent_picked=pick_agent(X, max_items)
+G=add_agent_to_exchange_graph(G,X,items2,agents, agent_picked)
+nx.draw(G, with_labels = True)
+plt.show()
+
+#Find shortest path
+path = find_shortest_path(G)
+print(path)
+G.remove_node('s')
+
+#Update allocation and exchange graph
+X=update_allocation(X,path,agents,items2,agent_picked)
+G=update_exchange_graph(X,G,path,agents,items2)
+nx.draw(G, with_labels = True)
+print(X)
+plt.show()
+
+print("##############")
+print("STEP 6")
+print('step 6', pick_agent(X, max_items))
+
+
 # %%

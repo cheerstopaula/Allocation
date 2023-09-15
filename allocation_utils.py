@@ -42,11 +42,13 @@ def find_shortest_path(G):
     except:
         return False
 
-def find_agent(agents,items,X,current_item,last_item):
+def find_agent(agents,items,X,current_item,last_item,current_item_index):
+    #this could be made more efficiently, by going through only the owners and not every owner
     for i in range(len(agents)):
         bundle=get_bundle_from_allocation_matrix(X,items,i)
-        if agents[i].exchange_contribution(bundle,current_item, last_item):
-            return i+1
+        if int(X[current_item_index,i+1]==1):
+           if agents[i].exchange_contribution(bundle,current_item, last_item):        
+                return i+1
     print('Agent not found')
 
 def get_owners_list(X,item_index):
@@ -62,9 +64,12 @@ def update_allocation(X,path_og,agents,items,agent_picked):
         X[last_item,0]=0
     while len(path)>0:
         last_item=path.pop(len(path)-1)
+        print('last item: ', last_item)
         if len(path)>0:
             next_to_last_item=path[-1]
-            current_agent=find_agent(agents,items,X,items[next_to_last_item],items[last_item])
+            print('next to last item: ', next_to_last_item)
+            current_agent=find_agent(agents,items,X,items[next_to_last_item],items[last_item],next_to_last_item)
+            print('current agent: ', current_agent)
             X[last_item,current_agent]=1
             X[next_to_last_item,current_agent]=0
         else:
@@ -96,6 +101,18 @@ def update_exchange_graph(X,G,path_og,agents,items):
                         G.remove_edge(last_item,i)
     return G
 
-        
+def get_max_items(items):
+    max_items=0
+    for i in range(len(items)):
+        max_items+=items[i].capacity
+    return max_items
+
+def pick_agent(X,max_items):
+    max_capacity=max_items
+    for i in range(len(X[0])-1):
+        if sum(X[:,i+1])<max_capacity:
+            max_capacity=sum(X[:,i+1])
+            agent_picked=i+1
+    return agent_picked
     
 
