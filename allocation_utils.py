@@ -45,7 +45,7 @@ def find_shortest_path(G):
 def find_agent(agents,items,X,current_item,last_item,current_item_index):
     #this could be made more efficiently, by going through only the owners and not every owner
     for i in range(len(agents)):
-        bundle=get_bundle_from_allocation_matrix(X,items,i)
+        bundle=get_bundle_from_allocation_matrix(X,items,i+1)
         if int(X[current_item_index,i+1]==1):
            if agents[i].exchange_contribution(bundle,current_item, last_item):        
                 return i+1
@@ -64,12 +64,12 @@ def update_allocation(X,path_og,agents,items,agent_picked):
         X[last_item,0]=0
     while len(path)>0:
         last_item=path.pop(len(path)-1)
-        print('last item: ', last_item)
+        #print('last item: ', last_item)
         if len(path)>0:
             next_to_last_item=path[-1]
-            print('next to last item: ', next_to_last_item)
+            #print('next to last item: ', next_to_last_item)
             current_agent=find_agent(agents,items,X,items[next_to_last_item],items[last_item],next_to_last_item)
-            print('current agent: ', current_agent)
+            #print('current agent: ', current_agent)
             X[last_item,current_agent]=1
             X[next_to_last_item,current_agent]=0
         else:
@@ -107,12 +107,60 @@ def get_max_items(items):
         max_items+=items[i].capacity
     return max_items
 
-def pick_agent(X,max_items):
+def initialize_players(agents):
+    players=[]
+    for i in range(len(agents)):
+        players.append(i+1)
+    return players
+
+def pick_agent(X,max_items, players):
     max_capacity=max_items
     for i in range(len(X[0])-1):
         if sum(X[:,i+1])<max_capacity:
-            max_capacity=sum(X[:,i+1])
-            agent_picked=i+1
+            if i+1 in players:
+                max_capacity=sum(X[:,i+1])
+                agent_picked=i+1
     return agent_picked
+
+def yankee_swap(agents,items, plot_exchange_graph):
+    ## Initialize players, allocation, exchange_graph, and max utility
+    players=initialize_players(agents)
+    X=initialize_allocation_matrix(items, agents)
+    print('Initial allocation:')
+    print(X)
+    G=initialize_exchange_graph(items)
+    if plot_exchange_graph:
+        nx.draw(G, with_labels = True)
+        plt.show()
+    max_items=get_max_items(items)
+    ## Run Yankee Swap
+    count=0
+    while len(players)>0:
+        count+=1
+        print('STEP', count)
+        agent_picked=pick_agent(X, max_items, players)
+        print('Agent picked:',agent_picked)
+        G=add_agent_to_exchange_graph(G,X,items,agents, agent_picked)
+        if plot_exchange_graph:
+            nx.draw(G, with_labels = True)
+            plt.show()
+
+        path = find_shortest_path(G)
+        print('path found:', path)
+        if path== False:
+            players.remove(agent_picked)
+        else:
+            G.remove_node('s')
+            #Given the path found, update allocation and exchange graph
+            X=update_allocation(X,path,agents,items,agent_picked)
+            G=update_exchange_graph(X,G,path,agents,items)
+            print('Current allocation:')
+            print(X)
+            if plot_exchange_graph:
+                nx.draw(G, with_labels = True)
+                plt.show()
+    return X
+            
+
     
 
