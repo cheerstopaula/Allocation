@@ -147,10 +147,11 @@ def yankee_swap(agents,items, plot_exchange_graph):
 
         path = find_shortest_path(G)
         print('path found:', path)
+        G.remove_node('s')
+        
         if path== False:
             players.remove(agent_picked)
         else:
-            G.remove_node('s')
             #Given the path found, update allocation and exchange graph
             X=update_allocation(X,path,agents,items,agent_picked)
             G=update_exchange_graph(X,G,path,agents,items)

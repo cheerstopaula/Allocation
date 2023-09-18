@@ -32,7 +32,7 @@ items[40].capacity=1
 items2=[items[0], items[1],items[20],items[25], items[30], items[40]]
 
 
-X=yankee_swap(agents, items2, plot_exchange_graph=False)
+X=yankee_swap(agents, items2, plot_exchange_graph=True)
 print(X)
 
 
