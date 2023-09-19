@@ -60,6 +60,7 @@ def update_allocation(X,path_og,agents,items,agent_picked):
     path=path_og.copy()
     path=path[1:-1]
     last_item=path[-1]
+    agents_involved=[agent_picked]
     if sum(X[last_item])>= items[last_item].capacity:
         X[last_item,0]=0
     while len(path)>0:
@@ -69,37 +70,45 @@ def update_allocation(X,path_og,agents,items,agent_picked):
             next_to_last_item=path[-1]
             #print('next to last item: ', next_to_last_item)
             current_agent=find_agent(agents,items,X,items[next_to_last_item],items[last_item],next_to_last_item)
+            agents_involved.append(current_agent)
             #print('current agent: ', current_agent)
             X[last_item,current_agent]=1
             X[next_to_last_item,current_agent]=0
         else:
             X[last_item,agent_picked]=1
-    return X
+    return X, agents_involved
 
 
-def update_exchange_graph(X,G,path_og,agents,items):
+def update_exchange_graph(X,G,path_og,agents,items, agents_involved):
     path=path_og.copy()
     path=path[1:-1]
     last_item=path[-1]
     if sum(X[last_item])>= items[last_item].capacity:
         G.remove_edge(last_item,'t')
-    while len(path)>0:
-        last_item=path.pop(len(path)-1)
-        owners_list=get_owners_list(X,last_item)
-        for owner in owners_list:
-            for i in range(len(items)):
-                item=items[i]
-                agent=agents[int(owner)-1]
-                bundle=get_bundle_from_allocation_matrix(X, items, owner)
-                exchangeable=agent.exchange_contribution(bundle,items[last_item], item)
-                if exchangeable:
-                    if not G.has_edge(last_item, i):
-                        if last_item!=i:
-                            G.add_edge(last_item,i)
-                else:
-                    if G.has_edge(last_item, i):
-                        G.remove_edge(last_item,i)
+    for agent_index in agents_involved:
+        agent=agents[int(agent_index)-1]
+        bundle=get_bundle_from_allocation_matrix(X, items, agent_index)
+        for i in range(len(items)):
+            item_1=items[i]
+            if item_1 in bundle:
+                for j in range(len(items)):
+                    if j!=i:
+                        item_2=items[j]
+                        owners=get_owners_list(X,i)
+                        exchangeable=False
+                        for owner in owners:
+                            bundle_owner=get_bundle_from_allocation_matrix(X, items, owner)
+                            willing_owner=agents[owner-1].exchange_contribution(bundle_owner,item_1, item_2)
+                            if willing_owner:
+                                exchangeable=True
+                        if exchangeable:
+                            if not G.has_edge(i, j):
+                                G.add_edge(i,j)
+                        else:
+                            if G.has_edge(i, j):
+                                G.remove_edge(i,j)
     return G
+
 
 def get_max_items(items):
     max_items=0
@@ -148,15 +157,16 @@ def yankee_swap(agents,items, plot_exchange_graph):
         path = find_shortest_path(G)
         print('path found:', path)
         G.remove_node('s')
-        
+
         if path== False:
             players.remove(agent_picked)
         else:
             #Given the path found, update allocation and exchange graph
-            X=update_allocation(X,path,agents,items,agent_picked)
-            G=update_exchange_graph(X,G,path,agents,items)
+            X, agents_involved=update_allocation(X,path,agents,items,agent_picked)
+            G=update_exchange_graph(X,G,path,agents,items, agents_involved)
             print('Current allocation:')
             print(X)
+            print('involved agents:', agents_involved)
             if plot_exchange_graph:
                 nx.draw(G, with_labels = True)
                 plt.show()
