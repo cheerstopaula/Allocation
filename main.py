@@ -23,12 +23,12 @@ agents=[agent1, agent2,agent3, agent4]
 
 #Generate reduced list of items with capacity of 1
 #Reduce capacities
-items[0].capacity=1
-items[1].capacity=1
-items[20].capacity=1
-items[25].capacity=1
-items[30].capacity=1
-items[40].capacity=1
+# items[0].capacity=2
+# items[1].capacity=2
+# items[20].capacity=2
+# items[25].capacity=2
+# items[30].capacity=2
+# items[40].capacity=2
 items2=[items[0], items[1],items[20],items[25], items[30], items[40]]
 
 

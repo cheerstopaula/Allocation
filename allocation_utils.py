@@ -83,30 +83,35 @@ def update_exchange_graph(X,G,path_og,agents,items, agents_involved):
     path=path_og.copy()
     path=path[1:-1]
     last_item=path[-1]
-    if sum(X[last_item])>= items[last_item].capacity:
+    if X[last_item,0]==0:
         G.remove_edge(last_item,'t')
     for agent_index in agents_involved:
         agent=agents[int(agent_index)-1]
         bundle=get_bundle_from_allocation_matrix(X, items, agent_index)
+        print('bundle len: ', len(bundle))
+        print('item id',bundle[0].item_id)
         for i in range(len(items)):
             item_1=items[i]
             if item_1 in bundle:
+                print('ACAA')
                 for j in range(len(items)):
                     if j!=i:
                         item_2=items[j]
                         owners=get_owners_list(X,i)
+                        print(owners)
                         exchangeable=False
                         for owner in owners:
-                            bundle_owner=get_bundle_from_allocation_matrix(X, items, owner)
-                            willing_owner=agents[owner-1].exchange_contribution(bundle_owner,item_1, item_2)
-                            if willing_owner:
-                                exchangeable=True
-                        if exchangeable:
-                            if not G.has_edge(i, j):
-                                G.add_edge(i,j)
-                        else:
-                            if G.has_edge(i, j):
-                                G.remove_edge(i,j)
+                            if owner!=0:
+                                bundle_owner=get_bundle_from_allocation_matrix(X, items, owner)
+                                willing_owner=agents[owner-1].exchange_contribution(bundle_owner,item_1, item_2)
+                                if willing_owner:
+                                    exchangeable=True
+                            if exchangeable:
+                                if not G.has_edge(i, j):
+                                    G.add_edge(i,j)
+                            else:
+                                if G.has_edge(i, j):
+                                    G.remove_edge(i,j)
     return G
 
 
