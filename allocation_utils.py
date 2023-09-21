@@ -1,6 +1,6 @@
 
 from agent_utils import Agent
-from item_utils import Item, get_bundle_from_allocation_matrix
+from item_utils import Item, get_bundle_from_allocation_matrix, get_bundle_indexes_from_allocation_matrix
 import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
@@ -28,7 +28,6 @@ def initialize_exchange_graph(items):
 def add_agent_to_exchange_graph(G,X,items,agents, agent_picked):
     G.add_node('s')
     bundle=get_bundle_from_allocation_matrix(X,items,agent_picked)
-
     for i in range(len(items)):
         g=items[i]
         if agents[agent_picked-1].marginal_contribution(bundle,g)==1:
@@ -49,7 +48,7 @@ def find_agent(agents,items,X,current_item,last_item,current_item_index):
         if int(X[current_item_index,i+1]==1):
            if agents[i].exchange_contribution(bundle,current_item, last_item):        
                 return i+1
-    print('Agent not found')
+    print('Agent not found') #this should never happen. If the item was in the path, then someone must be willing to exchange it
 
 def get_owners_list(X,item_index):
     item_list=X[item_index]
@@ -86,32 +85,26 @@ def update_exchange_graph(X,G,path_og,agents,items, agents_involved):
     if X[last_item,0]==0:
         G.remove_edge(last_item,'t')
     for agent_index in agents_involved:
-        agent=agents[int(agent_index)-1]
-        bundle=get_bundle_from_allocation_matrix(X, items, agent_index)
-        print('bundle len: ', len(bundle))
-        print('item id',bundle[0].item_id)
-        for i in range(len(items)):
-            item_1=items[i]
-            if item_1 in bundle:
-                print('ACAA')
-                for j in range(len(items)):
-                    if j!=i:
-                        item_2=items[j]
-                        owners=get_owners_list(X,i)
-                        print(owners)
-                        exchangeable=False
-                        for owner in owners:
-                            if owner!=0:
-                                bundle_owner=get_bundle_from_allocation_matrix(X, items, owner)
-                                willing_owner=agents[owner-1].exchange_contribution(bundle_owner,item_1, item_2)
-                                if willing_owner:
-                                    exchangeable=True
-                            if exchangeable:
-                                if not G.has_edge(i, j):
-                                    G.add_edge(i,j)
-                            else:
-                                if G.has_edge(i, j):
-                                    G.remove_edge(i,j)
+        bundle_indexes=get_bundle_indexes_from_allocation_matrix(X,items,agent_index)
+        for item_idx in bundle_indexes:
+            item_1=items[item_idx]
+            for item_idx_2 in range(len(items)):
+                if item_idx_2!=item_idx:
+                    item_2=items[item_idx_2]
+                    owners=get_owners_list(X,item_idx)
+                    exchangeable=False
+                    for owner in owners:
+                        if owner!=0:
+                            bundle_owner=get_bundle_from_allocation_matrix(X, items, owner)
+                            willing_owner=agents[owner-1].exchange_contribution(bundle_owner,item_1, item_2)
+                            if willing_owner:
+                                exchangeable=True
+                        if exchangeable:
+                            if not G.has_edge(item_idx, item_idx_2):
+                                G.add_edge(item_idx,item_idx_2)
+                        else:
+                            if G.has_edge(item_idx, item_idx_2):
+                                G.remove_edge(item_idx,item_idx_2)
     return G
 
 
