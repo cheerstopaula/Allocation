@@ -1,4 +1,5 @@
 
+
 class Agent:
     def __init__(self,id, desired_items, cap):
         '''
@@ -11,6 +12,8 @@ class Agent:
         self.id=id
         self.desired_items=desired_items
         self.cap=cap
+
+
 
     def valuation(self,bundle):   
         '''
@@ -40,25 +43,12 @@ class Agent:
         @param item: marginal item (from class Item)
         @return: marginal utility obtained by adding item to bundle (either 0 or 1).
         '''
-        if item.item_id not in self.desired_items:
-            return 0
+        
         T=bundle.copy()
-        x=[*range(len(bundle))]
-        x.reverse()
-        for i in x:
-            g=bundle[i]
-            if g.item_id not in self.desired_items:
-                T.pop(i)
-        slots=[]
-        for i in range(0,len(T)):
-            slot=T[i].timeslot
-            slots.append(slot)
-            if slot==item.timeslot:
-                return 0
-        slots=set(slots)
-        if len(slots)>=self.cap:
-            return 0
-        return 1
+        current_val=self.valuation(T)
+        T.append(item)
+        new_val=self.valuation(T)
+        return new_val-current_val
     
 
 

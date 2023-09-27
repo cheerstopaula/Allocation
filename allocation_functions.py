@@ -1,6 +1,6 @@
 
-from agent_utils import Agent
-from item_utils import Item, get_bundle_from_allocation_matrix, get_bundle_indexes_from_allocation_matrix
+from agent_functions import Agent
+from item_functions import Item, get_bundle_from_allocation_matrix, get_bundle_indexes_from_allocation_matrix
 import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
@@ -85,15 +85,15 @@ def update_exchange_graph(X,G,path_og,agents,items, agents_involved):
     if X[last_item,0]==0:
         G.remove_edge(last_item,'t')
     for agent_index in agents_involved:
-        bundle_indexes=get_bundle_indexes_from_allocation_matrix(X,items,agent_index)
+        bundle_indexes=get_bundle_indexes_from_allocation_matrix(X,agent_index)
         for item_idx in bundle_indexes:
             item_1=items[item_idx]
-            for item_idx_2 in range(len(items)):
-                if item_idx_2!=item_idx:
-                    item_2=items[item_idx_2]
-                    owners=get_owners_list(X,item_idx)
-                    exchangeable=False
-                    for owner in owners:
+            owners=get_owners_list(X,item_idx)
+            for owner in owners:
+                for item_idx_2 in range(len(items)):
+                    if item_idx_2!=item_idx:
+                        item_2=items[item_idx_2]
+                        exchangeable=False               
                         if owner!=0:
                             bundle_owner=get_bundle_from_allocation_matrix(X, items, owner)
                             willing_owner=agents[owner-1].exchange_contribution(bundle_owner,item_1, item_2)
@@ -120,13 +120,15 @@ def initialize_players(agents):
         players.append(i+1)
     return players
 
-def pick_agent(X,max_items, players):
+def pick_agent(X,max_items,items, agents,players):
     max_capacity=max_items
-    for i in range(len(X[0])-1):
-        if sum(X[:,i+1])<max_capacity:
-            if i+1 in players:
-                max_capacity=sum(X[:,i+1])
-                agent_picked=i+1
+    for player in players:
+        agent=agents[player-1]
+        bundle=get_bundle_from_allocation_matrix(X, items, player)
+        current_utility=agent.valuation(bundle)
+        if current_utility<max_capacity:
+                max_capacity=current_utility
+                agent_picked=player
     return agent_picked
 
 def yankee_swap(agents,items, plot_exchange_graph):
@@ -145,7 +147,7 @@ def yankee_swap(agents,items, plot_exchange_graph):
     while len(players)>0:
         count+=1
         print('STEP', count)
-        agent_picked=pick_agent(X, max_items, players)
+        agent_picked=pick_agent(X, max_items, items, agents,players)
         print('Agent picked:',agent_picked)
         G=add_agent_to_exchange_graph(G,X,items,agents, agent_picked)
         if plot_exchange_graph:

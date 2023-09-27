@@ -44,7 +44,7 @@ def get_bundle_from_allocation_matrix(X, items, agent_index):
 
 
 
-def get_bundle_indexes_from_allocation_matrix(X, items, agent_index):
+def get_bundle_indexes_from_allocation_matrix(X, agent_index):
     bundle_indexes=[]
     items_list=X[:,agent_index]
     for i in range(len(items_list)):
