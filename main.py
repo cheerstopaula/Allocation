@@ -41,6 +41,7 @@ items2=[items[0], items[1],items[20],items[25], items[30], items[40]]
 
 X=yankee_swap(agents, items2, plot_exchange_graph=False)
 print(X)
+#print metrics
 print(utilitarian_welfare(X))
 print(nash_welfare(X))
 
