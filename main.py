@@ -2,6 +2,7 @@
 from agent_functions import Agent
 from item_functions import generate_items_from_schedule
 from allocation_functions import yankee_swap
+from metric_functions import utilitarian_welfare, nash_welfare
 import random
 import numpy as np
 seed = 123
@@ -40,6 +41,7 @@ items2=[items[0], items[1],items[20],items[25], items[30], items[40]]
 
 X=yankee_swap(agents, items2, plot_exchange_graph=False)
 print(X)
-
+print(utilitarian_welfare(X))
+print(nash_welfare(X))
 
 # %%

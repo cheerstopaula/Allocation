@@ -90,13 +90,16 @@ def update_exchange_graph(X,G,path_og,agents,items, agents_involved):
             item_1=items[item_idx]
             owners=get_owners_list(X,item_idx)
             for owner in owners:
-                for item_idx_2 in range(len(items)):
+                agent=agents[owner-1]
+                desired_items_indexes=agent.get_desired_items_indexes(items)
+                for item_idx_2 in range(len(items)): #Change this to only search over desired items. 
+                                                    #Doing item_idx_2 in desired_item_indexes is not working for some reason, FIX IT!
                     if item_idx_2!=item_idx:
                         item_2=items[item_idx_2]
                         exchangeable=False               
                         if owner!=0:
                             bundle_owner=get_bundle_from_allocation_matrix(X, items, owner)
-                            willing_owner=agents[owner-1].exchange_contribution(bundle_owner,item_1, item_2)
+                            willing_owner=agent.exchange_contribution(bundle_owner,item_1, item_2)
                             if willing_owner:
                                 exchangeable=True
                         if exchangeable:

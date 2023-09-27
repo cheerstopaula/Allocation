@@ -1,4 +1,4 @@
-
+from item_functions import Item
 
 class Agent:
     def __init__(self,id, desired_items, cap):
@@ -13,6 +13,12 @@ class Agent:
         self.desired_items=desired_items
         self.cap=cap
 
+    def get_desired_items_indexes(self,items):
+        desired_items_indexes=[]
+        for item_index in range(len(items)):
+            if items[item_index].item_id in self.desired_items:
+                desired_items_indexes.append(item_index)
+        return desired_items_indexes
 
 
     def valuation(self,bundle):   
