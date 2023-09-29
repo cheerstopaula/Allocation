@@ -34,21 +34,4 @@ def generate_items_from_schedule(filename):
         items.append(item)
     return items
 
-def get_bundle_from_allocation_matrix(X, items, agent_index):
-    bundle=[]
-    items_list=X[:,agent_index]
-    for i in range(len(items_list)):
-        if int(items_list[i])==1:
-            bundle.append(items[i])
-    return bundle
-
-
-
-def get_bundle_indexes_from_allocation_matrix(X, agent_index):
-    bundle_indexes=[]
-    items_list=X[:,agent_index]
-    for i in range(len(items_list)):
-        if int(items_list[i])==1:
-            bundle_indexes.append(i)
-    return bundle_indexes
 
