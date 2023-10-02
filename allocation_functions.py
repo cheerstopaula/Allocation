@@ -1,6 +1,5 @@
 
 from agent_functions import Agent
-from item_functions import Item, get_bundle_from_allocation_matrix, get_bundle_indexes_from_allocation_matrix
 import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,6 +13,7 @@ def initialize_allocation_matrix(items, agents):
     for i in range(n):
         X[i][0]=items[i].capacity
     return X
+
 
 def initialize_exchange_graph(items):
     exchange_graph = nx.DiGraph()
@@ -149,6 +149,31 @@ def update_exchange_graph(X,G,path_og,agents,items, agents_involved):
                                 if G.has_edge(item_idx, item_idx_2):
                                     G.remove_edge(item_idx,item_idx_2)
     return G
+
+def SPIRE_algorithm(agents, items):
+    X=initialize_allocation_matrix(items, agents)
+    agent_index=1
+    for agent in agents:
+        bundle=[]
+        desired_items=agent.get_desired_items_indexes(items)
+        for item in desired_items:
+            if X[item,0]>0:
+                current_val=agent.valuation(bundle)
+                new_bundle=bundle.copy()
+                new_bundle.append(items[item])
+                new_valuation=agent.valuation(new_bundle)
+                if new_valuation>current_val:
+                    X[item,agent_index]=1
+                    X[item,0]-=1
+                    bundle=new_bundle.copy()
+        agent_index+=1
+    return X
+
+        
+
+
+
+
 
 
 def yankee_swap(agents,items, plot_exchange_graph):
