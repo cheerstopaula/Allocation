@@ -1,7 +1,7 @@
 # %%
 from agent_functions import Agent
 from item_functions import generate_items_from_schedule
-from allocation_functions import yankee_swap, SPIRE_algorithm
+from allocation_functions import yankee_swap, SPIRE_algorithm, round_robin
 from metric_functions import utilitarian_welfare, nash_welfare
 import random
 import numpy as np
@@ -30,19 +30,24 @@ agents=[agent1, agent2,agent3, agent4]
 
 #Generate reduced list of items with capacity of 1
 #Reduce capacities
-items[0].capacity=1
-items[1].capacity=1
-items[20].capacity=1
-items[25].capacity=1
-items[30].capacity=1
-items[40].capacity=1
+items[0].capacity=2
+items[1].capacity=2
+items[20].capacity=2
+items[25].capacity=2
+items[30].capacity=2
+items[40].capacity=2
 items2=[items[0], items[1],items[20],items[25], items[30], items[40]]
 
 
 X=yankee_swap(agents, items2, plot_exchange_graph=False)
-print('YS Allocation',X)
+print('YS Allocation')
+print(X)
 X=SPIRE_algorithm(agents,items2)
-print('SPIRE allocation',X)
+print('SPIRE allocation')
+print(X)
+X=round_robin(agents,items2)
+print('RR allocation')
+print(X)
 #print metrics
 #print(utilitarian_welfare(X))
 #print(nash_welfare(X))

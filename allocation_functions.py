@@ -169,10 +169,33 @@ def SPIRE_algorithm(agents, items):
         agent_index+=1
     return X
 
-        
+def round_robin(agents, items):
+    players=initialize_players(agents)
+    X=initialize_allocation_matrix(items, agents)
+    while len(players)>0:
+        for player in players: 
+            val=0
+            current_item=[]
+            agent=agents[player-1]
+            desired_items=agent.get_desired_items_indexes(items)
+            bundle=get_bundle_from_allocation_matrix(X, items, player)
+            for item in desired_items:
+                if X[item,0]>0:
+                    current_val=agent.marginal_contribution(bundle,items[item])
+                    if current_val>val:
+                        current_item.clear()
+                        current_item.append(item)
+                        val=current_val
+            if len(current_item)>0:
+                X[current_item[0],player]=1
+                X[current_item[0],0]-=1
+            else:
+                players.remove(player)
+    return X
 
 
-
+            
+            
 
 
 
