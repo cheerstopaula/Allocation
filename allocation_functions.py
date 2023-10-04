@@ -19,7 +19,6 @@ def initialize_exchange_graph(items):
     exchange_graph = nx.DiGraph()
     for i in range(len(items)):
         exchange_graph.add_node(i)
-    t=i+1
     exchange_graph.add_node('t')
     for i in range(len(items)):
         exchange_graph.add_edge(i, 't')
@@ -65,13 +64,13 @@ def find_shortest_path(G):
     except:
         return False
 
-def find_agent(agents,items,X,current_item,last_item,current_item_index):
-    #this could be made more efficiently, by going through only the owners and not every owner
-    for i in range(len(agents)):
-        bundle=get_bundle_from_allocation_matrix(X,items,i+1)
-        if int(X[current_item_index,i+1]==1):
-           if agents[i].exchange_contribution(bundle,current_item, last_item):        
-                return i+1
+def find_agent(agents,items,X,current_item_index,last_item_index):
+    owners=get_owners_list(X,current_item_index)
+    for owner in owners:
+        agent=agents[owner-1]
+        bundle=get_bundle_from_allocation_matrix(X,items,owner)
+        if agent.exchange_contribution(bundle,items[current_item_index], items[last_item_index]):      
+            return owner
     print('Agent not found') #this should never happen. If the item was in the path, then someone must be willing to exchange it
 
 def get_owners_list(X,item_index):
@@ -80,12 +79,12 @@ def get_owners_list(X,item_index):
     return owners_list[0]
 
 def get_bundle_from_allocation_matrix(X, items, agent_index):
-    bundle=[]
+    bundle0=[]
     items_list=X[:,agent_index]
     for i in range(len(items_list)):
         if int(items_list[i])==1:
-            bundle.append(items[i])
-    return bundle
+            bundle0.append(items[i])
+    return bundle0
 
 def get_bundle_indexes_from_allocation_matrix(X, agent_index):
     bundle_indexes=[]
@@ -107,13 +106,15 @@ def update_allocation(X,path_og,agents,items,agent_picked):
         if len(path)>0:
             next_to_last_item=path[-1]
             #print('next to last item: ', next_to_last_item)
-            current_agent=find_agent(agents,items,X,items[next_to_last_item],items[last_item],next_to_last_item)
+            current_agent=find_agent(agents,items,X,next_to_last_item,last_item)
             agents_involved.append(current_agent)
-            #print('current agent: ', current_agent)
             X[last_item,current_agent]=1
             X[next_to_last_item,current_agent]=0
+            
+            
         else:
             X[last_item,agent_picked]=1
+        
     return X, agents_involved
 
 
@@ -128,27 +129,26 @@ def update_exchange_graph(X,G,path_og,agents,items, agents_involved):
         for item_idx in bundle_indexes:
             item_1=items[item_idx]
             owners=get_owners_list(X,item_idx)
-            for owner in owners:
-                if owner!=0:
-                    agent=agents[owner-1]
-                    desired_items_indexes=agent.get_desired_items_indexes(items)
-                    for item_idx_2 in range(len(items)): #Change this to only search over desired items. 
-                                                        #Doing item_idx_2 in desired_item_indexes is not working for some reason, DEBUGGGG!
-                        if item_idx_2!=item_idx:
-                            item_2=items[item_idx_2]
-                            exchangeable=False               
-                        
+            print()
+            for item_2_idx in range(len(items)):
+                if item_2_idx!=item_idx:
+                    item_2=items[item_2_idx]
+                    exchangeable=False
+                    for owner in owners:
+                        if owner!=0:
+                            agent=agents[owner-1]        
                             bundle_owner=get_bundle_from_allocation_matrix(X, items, owner)
+                            bundle_owner_indexes=get_bundle_indexes_from_allocation_matrix(X, owner)
                             willing_owner=agent.exchange_contribution(bundle_owner,item_1, item_2)
                             if willing_owner:
                                 exchangeable=True
-                            if exchangeable:
-                                if not G.has_edge(item_idx, item_idx_2):
-                                    G.add_edge(item_idx,item_idx_2)
-                            else:
-                                if G.has_edge(item_idx, item_idx_2):
-                                    G.remove_edge(item_idx,item_idx_2)
-    return G
+                    if exchangeable:
+                        if not G.has_edge(item_idx, item_2_idx):
+                            G.add_edge(item_idx,item_2_idx)
+                    else:
+                        if G.has_edge(item_idx, item_2_idx):
+                            G.remove_edge(item_idx,item_2_idx)
+        return G
 
 def SPIRE_algorithm(agents, items):
     X=initialize_allocation_matrix(items, agents)
@@ -192,11 +192,6 @@ def round_robin(agents, items):
             else:
                 players.remove(player)
     return X
-
-
-            
-            
-
 
 
 def yankee_swap(agents,items, plot_exchange_graph):

@@ -1,4 +1,5 @@
 from item_functions import Item
+import random
 
 class Agent:
     def __init__(self,id, desired_items, cap):
@@ -66,23 +67,41 @@ class Agent:
         @param og_item: original item in the bundle (from class Item)
         @param new_item: item we might exchange the og item for (from class Item)
         @return: True if utility obtained by exchanging item is the same or more, False otherwise.
-
-        THIS FUNCTION CAN PROBABLY BE BUILT MORE EFFICIENTLY
         '''
-        T=bundle.copy()
-        for i in range(len(T)):
-            index=0
-            if T[i].item_id == og_item.item_id:
-                index=i
-        T.pop(index)
+        og_val=self.valuation(bundle)
 
-        val=self.valuation(T)
-        og_mg=self.marginal_contribution(T,og_item)
-        new_mg=self.marginal_contribution(T, new_item)
-        og_val=val+og_mg
-        new_val=val+new_mg
+        for i in range(len(bundle)):
+            index=0
+            if bundle[i].item_id == new_item.item_id:
+                return False
+
+        T0=bundle.copy()
+        for i in range(len(T0)):
+            index=0
+            if T0[i].item_id == og_item.item_id:
+                index=i
+        T0.pop(index)
+        T0.append(new_item)
+
+        new_val=self.valuation(T0)
+        if og_item.item_id==new_item.item_id:
+            return False
         if og_val==new_val:
             return True
         else:
             return False
+    
+def gen_random_agents(num_agents,items,p=10):
+    agents=[]
+    for i in range(num_agents):
+        agent_id='Student'+str(i)
+        agent_cap=random.randrange(3,7,1)
+        agent_desired_items=[]
+        for item in items:
+            random_num=random.randrange(1, p+1, 1)
+            if random_num==1:
+                agent_desired_items.append(item.item_id)
+        agent=Agent(agent_id,agent_desired_items, agent_cap)
+        agents.append(agent)
+    return agents
 
