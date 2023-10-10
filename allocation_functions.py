@@ -105,13 +105,16 @@ def update_allocation(X,path_og,agents,items,agent_picked):
         #print('last item: ', last_item)
         if len(path)>0:
             next_to_last_item=path[-1]
-            #print('next to last item: ', next_to_last_item)
             current_agent=find_agent(agents,items,X,next_to_last_item,last_item)
+            bundle=get_bundle_from_allocation_matrix(X,items,current_agent)
+            bundle_indexes=get_bundle_indexes_from_allocation_matrix(X,current_agent)
+            agent=agents[current_agent-1]
+            print('current agent: ', current_agent)
+            print('current bundle: ', bundle_indexes)
+            print('desired items: ', agent.get_desired_items_indexes(items))
             agents_involved.append(current_agent)
             X[last_item,current_agent]=1
             X[next_to_last_item,current_agent]=0
-            
-            
         else:
             X[last_item,agent_picked]=1
         
@@ -129,7 +132,6 @@ def update_exchange_graph(X,G,path_og,agents,items, agents_involved):
         for item_idx in bundle_indexes:
             item_1=items[item_idx]
             owners=get_owners_list(X,item_idx)
-            print()
             for item_2_idx in range(len(items)):
                 if item_2_idx!=item_idx:
                     item_2=items[item_2_idx]
@@ -138,7 +140,6 @@ def update_exchange_graph(X,G,path_og,agents,items, agents_involved):
                         if owner!=0:
                             agent=agents[owner-1]        
                             bundle_owner=get_bundle_from_allocation_matrix(X, items, owner)
-                            bundle_owner_indexes=get_bundle_indexes_from_allocation_matrix(X, owner)
                             willing_owner=agent.exchange_contribution(bundle_owner,item_1, item_2)
                             if willing_owner:
                                 exchangeable=True
@@ -148,7 +149,7 @@ def update_exchange_graph(X,G,path_og,agents,items, agents_involved):
                     else:
                         if G.has_edge(item_idx, item_2_idx):
                             G.remove_edge(item_idx,item_2_idx)
-        return G
+    return G
 
 def SPIRE_algorithm(agents, items):
     X=initialize_allocation_matrix(items, agents)

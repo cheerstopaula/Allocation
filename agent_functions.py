@@ -71,16 +71,18 @@ class Agent:
         og_val=self.valuation(bundle)
 
         for i in range(len(bundle)):
-            index=0
             if bundle[i].item_id == new_item.item_id:
                 return False
 
         T0=bundle.copy()
+        index=[]
         for i in range(len(T0)):
-            index=0
             if T0[i].item_id == og_item.item_id:
-                index=i
-        T0.pop(index)
+                index.append(i)
+        if len(index)==0:
+            return False
+        
+        T0.pop(index[0])
         T0.append(new_item)
 
         new_val=self.valuation(T0)
