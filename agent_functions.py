@@ -97,7 +97,7 @@ def gen_random_agents(num_agents,items,p=10):
     agents=[]
     for i in range(num_agents):
         agent_id='Student'+str(i)
-        agent_cap=random.randrange(3,7,1)
+        agent_cap=random.randrange(4,11,1)
         agent_desired_items=[]
         for item in items:
             random_num=random.randrange(1, p+1, 1)

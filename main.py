@@ -2,7 +2,7 @@
 from agent_functions import Agent, gen_random_agents
 from item_functions import generate_items_from_schedule
 from allocation_functions import yankee_swap, SPIRE_algorithm, round_robin
-from metric_functions import utilitarian_welfare, nash_welfare, EF, leximin
+from metric_functions import utilitarian_welfare, nash_welfare, EF, EF_1, EF_X
 import matplotlib.pyplot as plt
 import random
 import numpy as np
@@ -30,12 +30,12 @@ agents=[agent1, agent2,agent3, agent4]
 
 #Generate reduced list of items with capacity of 1
 #Reduce capacities
-items[0].capacity=2
-items[1].capacity=2
-items[20].capacity=2
-items[25].capacity=2
-items[30].capacity=2
-items[40].capacity=2
+items[0].capacity=1
+items[1].capacity=1
+items[20].capacity=1
+items[25].capacity=1
+items[30].capacity=1
+items[40].capacity=1
 items=[items[0], items[1],items[20],items[25], items[30], items[40]]
 
 X=yankee_swap(agents, items, plot_exchange_graph=False)
@@ -44,18 +44,24 @@ print(X)
 print('Utilitatian: ',utilitarian_welfare(X,agents,items))
 print('Nash: ',nash_welfare(X, agents,items))
 print('EF: ',EF(X, agents,items))
+print('EF_1: ',EF_1(X, agents,items))
+print('EF_X: ',EF_X(X, agents,items))
 X=round_robin(agents,items)
 print('Round Robin Allocation')
 print(X)
 print('Utilitatian: ',utilitarian_welfare(X,agents,items))
 print('Nash: ',nash_welfare(X, agents,items))
 print('EF: ',EF(X, agents,items))
+print('EF_1: ',EF_1(X, agents,items))
+print('EF_X: ',EF_X(X, agents,items))
 X=SPIRE_algorithm(agents,items)
 print(X)
 print('SPIRE Allocation')
 print('Utilitatian: ',utilitarian_welfare(X,agents,items))
 print('Nash: ',nash_welfare(X, agents,items))
 print('EF: ',EF(X, agents,items))
+print('EF_1: ',EF_1(X, agents,items))
+print('EF_X: ',EF_X(X, agents,items))
 
 
 # %%
