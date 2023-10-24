@@ -80,15 +80,15 @@ colors=colors_list[:3]
 plt.close()
 
 plt.figure(figsize=(10,6))
-plt.hist([YS_leximin,RR_leximin,SP_leximin], bins=[0,1,2,3,4,5,6,7,8,9,10], alpha=0.6,  rwidth=0.7,
+plt.hist([YS_leximin,RR_leximin,SP_leximin], bins=[0,1,2,3,4,5,6,7,8,9,10], alpha=0.7,  rwidth=0.7,
          histtype ='bar',
          color = colors,
          label = ['Yanyee Swap','Round Robin', 'SPIRE algorithm'])
 plt.xticks([0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5],[0,1,2,3,4,5,6,7,8,9,10])
 
-plt.plot([0.75,1.75,2.75,3.75,4.75,5.75,6.75,7.75,8.75,9.75],nSP, color=colors[2], linewidth=3)
-plt.plot([0.5, 1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5],nRR, color=colors[1], linewidth=3)
-plt.plot([0.25, 1.25,2.25,3.25,4.25,5.25,6.25,7.25,8.25,9.25],nYS, color=colors[0], linewidth=3)
+plt.plot([0.75,1.75,2.75,3.75,4.75,5.75,6.75,7.75,8.75,9.75],nSP, color='C2', linewidth=3, alpha=0.65)
+plt.plot([0.5, 1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5],nRR, color='C1', linewidth=3, alpha=0.65)
+plt.plot([0.25, 1.25,2.25,3.25,4.25,5.25,6.25,7.25,8.25,9.25],nYS, color='C0', linewidth=3, alpha=0.65)
 plt.axvline(YS_leximin[int(len(YS_leximin)/2)]+0.5, color=colors[0], linestyle='dashed', linewidth=1.6, label='YS Median')
 plt.axvline(RR_leximin[int(len(RR_leximin)/2)]+0.5, color=colors[1], linestyle='dashed', linewidth=1.7, label='RR Median')
 plt.axvline(SP_leximin[int(len(SP_leximin)/2)]+0.5, color=colors[2], linestyle='dashed', linewidth=1.5, label='SP Median')
@@ -124,9 +124,9 @@ plt.hist([YS_leximin,RR_leximin,SP_leximin], bins=[0,1,2,3,4,5,6,7,8,9,10],  rwi
          label = ['Yanyee Swap','Round Robin', 'SPIRE algorithm'])
 plt.xticks([0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5],[0,1,2,3,4,5,6,7,8,9,10])
 
-plt.plot([0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5],nSP, color=colors[2], linewidth=2.5)
-plt.plot([0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5],nRR, color=colors[1], linewidth=2.5)
-plt.plot([0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5],nYS, color=colors[0], linewidth=2.5)
+plt.plot([0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5],nSP, color='C2', linewidth=3, alpha=0.65)
+plt.plot([0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5],nRR, color='C1', linewidth=3, alpha=0.65)
+plt.plot([0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5],nYS, color='C0', linewidth=3, alpha=0.65)
 
 # plt.axvline(sum(YS_leximin)/len(YS_leximin), color='C0', linestyle='dashed', linewidth=1)
 # plt.axvline(sum(RR_leximin)/len(RR_leximin), color='C1', linestyle='dashed', linewidth=1)

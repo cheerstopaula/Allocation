@@ -1,4 +1,4 @@
-from data_utils import Schedule
+from data_utils2 import Schedule
 
 class Item:
     def __init__(self,item_id, capacity,timeslot):
@@ -26,12 +26,14 @@ def generate_items_from_schedule(filename):
     section=schedule.section
     days=schedule.days
     slot=schedule.slot
+    component=schedule.component
     for i in range(0, len(catalog)):
-        item_id=subject[i]+catalog[i]+'-'+str(section[i])
-        copies=int(capacity[i])
-        timeslot=days[i]+'-'+slot[i]
-        item=Item(item_id, copies, timeslot)
-        items.append(item)
+        if component[i]=='LEC' and str(days[i])!='nan':
+            item_id=subject[i]+catalog[i]+'-'+str(section[i])
+            copies=int(capacity[i])
+            timeslot=str(days[i])+'-'+str(slot[i])
+            item=Item(item_id, copies, timeslot)
+            items.append(item)
     return items
 
 

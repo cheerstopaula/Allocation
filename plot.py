@@ -87,7 +87,7 @@ for seed in seeds:
 
     start_process=time.process_time()
     start = timer()
-    X=round_robin(agents,items)
+    X=SPIRE_algorithm(agents,items)
     end_process=time.process_time()
     end = timer()
     SP_runtime.append(end-start)
