@@ -3,6 +3,7 @@ from agent_functions import Agent
 import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
+import time
 
     
 
@@ -109,9 +110,9 @@ def update_allocation(X,path_og,agents,items,agent_picked):
             bundle=get_bundle_from_allocation_matrix(X,items,current_agent)
             bundle_indexes=get_bundle_indexes_from_allocation_matrix(X,current_agent)
             agent=agents[current_agent-1]
-            print('current agent: ', current_agent)
-            print('current bundle: ', bundle_indexes)
-            print('desired items: ', agent.get_desired_items_indexes(items))
+            # print('current agent: ', current_agent)
+            # print('current bundle: ', bundle_indexes)
+            # print('desired items: ', agent.get_desired_items_indexes(items))
             agents_involved.append(current_agent)
             X[last_item,current_agent]=1
             X[next_to_last_item,current_agent]=0
@@ -199,8 +200,8 @@ def yankee_swap(agents,items, plot_exchange_graph):
     ## Initialize players, allocation, exchange_graph, and max utility
     players=initialize_players(agents)
     X=initialize_allocation_matrix(items, agents)
-    print('Initial allocation:')
-    print(X)
+    # print('Initial allocation:')
+    # print(X)
     G=initialize_exchange_graph(items)
     if plot_exchange_graph:
         nx.draw(G, with_labels = True)
@@ -208,33 +209,40 @@ def yankee_swap(agents,items, plot_exchange_graph):
     max_items=get_max_items(items)
     ## Run Yankee Swap
     count=0
+    time_steps=[]
+    agents_involved_arr=[]
+    start=time.process_time()
     while len(players)>0:
         count+=1
-        print('STEP', count)
+        # print('STEP', count)
         agent_picked=pick_agent(X, max_items, items, agents,players)
-        print('Agent picked:',agent_picked)
+        # print('Agent picked:',agent_picked)
         G=add_agent_to_exchange_graph(G,X,items,agents, agent_picked)
         if plot_exchange_graph:
             nx.draw(G, with_labels = True)
             plt.show()
 
         path = find_shortest_path(G)
-        print('path found:', path)
+        # print('path found:', path)
         G.remove_node('s')
 
         if path== False:
             players.remove(agent_picked)
+            time_steps.append(time.process_time()-start)
+            agents_involved_arr.append(0)
         else:
             #Given the path found, update allocation and exchange graph
             X, agents_involved=update_allocation(X,path,agents,items,agent_picked)
             G=update_exchange_graph(X,G,path,agents,items, agents_involved)
-            print('Current allocation:')
-            print(X)
-            print('involved agents:', agents_involved)
+            # print('Current allocation:')
+            # print(X)
+            # print('involved agents:', agents_involved)
             if plot_exchange_graph:
                 nx.draw(G, with_labels = True)
                 plt.show()
-    return X
+            time_steps.append(time.process_time()-start)
+            agents_involved_arr.append(len(agents_involved))
+    return X,time_steps,agents_involved_arr
             
 
     

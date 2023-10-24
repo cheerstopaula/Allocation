@@ -12,7 +12,7 @@ random.seed(seed)
 np.random.seed(seed)
 
 
-items=generate_items_from_schedule('fall2023schedule.xlsx')
+items=generate_items_from_schedule('fall2023schedule-2.xlsx')
 
 YS_utilitarian=[]
 YS_nash_zeros=[]
@@ -36,7 +36,7 @@ SP_EF_1=[]
 SP_EF_X=[]
 
 seeds=[0,1,2,3,4,5,6,7,8,9]
-n=500
+n=50
 
 YS_runtime=[]
 YS_process_runtime=[]

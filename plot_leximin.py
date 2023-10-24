@@ -29,7 +29,7 @@ SP_nash=[]
 SP_EF=[]
 
 seeds=[0]
-n=1000
+n=500
 
 for seed in seeds:
     random.seed(seed)

@@ -6,16 +6,23 @@ from metric_functions import utilitarian_welfare, nash_welfare, EF, EF_1, EF_X
 import matplotlib.pyplot as plt
 import random
 import numpy as np
-seed = 1
-random.seed(seed)
-np.random.seed(seed)
+
 
 
 items=generate_items_from_schedule('fall2023schedule-2.xlsx')
 # for item in items:
 #     print('Course:',item.item_id,'Timeslot:',item.timeslot,'Capacity:',item.capacity)
+n=2000
+for seed in [0,1,2,3,4,5,6,7,8,9]:
+    random.seed(seed)
+    np.random.seed(seed)
+    agents=gen_random_agents(n,items)
+    for agent in agents:
+        print(agent.id, 'cap:', agent.cap)
+        print('desired items: ',agent.desired_items)
+    X,time_steps,agents_involved_arr=yankee_swap(agents, items, plot_exchange_graph=False)
+    np.savez(f'YS_{n}_{seed}.npz',X=X,time_steps=time_steps,num_agents_involved=agents_involved_arr)
 
-print(len(items))
 
 # ####TEST EXAMPLE
 # #Create agents with preferences 
