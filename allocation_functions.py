@@ -1,6 +1,7 @@
 
 from agent_functions import Agent
 import networkx as nx
+from collections import deque
 import matplotlib.pyplot as plt
 import numpy as np
 import time
@@ -23,6 +24,31 @@ def initialize_exchange_graph(items):
     exchange_graph.add_node('t')
     for i in range(len(items)):
         exchange_graph.add_edge(i, 't')
+    return exchange_graph
+
+def build_exchange_graph(X,items, agents):
+    exchange_graph = nx.DiGraph()
+    for i in range(len(items)):
+        exchange_graph.add_node(i)
+    exchange_graph.add_node('t')
+    for item_index in range(len(items)):
+        item_1=items[item_index]
+        if X[item_index,0]>0:
+            exchange_graph.add_edge(item_index, 't')
+        owners=get_owners_list(X,item_index)
+        for item_2_index in range(len(items)):
+            if item_2_index!=item_index:
+                item_2=items[item_2_index]
+                exchangeable=False
+                for owner in owners:
+                    if owner!=0:
+                        agent=agents[owner-1]        
+                        bundle_owner=get_bundle_from_allocation_matrix(X, items, owner)
+                        willing_owner=agent.exchange_contribution(bundle_owner,item_1, item_2)
+                        if willing_owner:
+                            exchangeable=True
+                if exchangeable:
+                    exchange_graph.add_edge(item_index,item_2_index)
     return exchange_graph
 
 def initialize_players(agents):
@@ -48,6 +74,29 @@ def pick_agent(X,max_items,items, agents,players):
                 agent_picked=player
     return agent_picked
 
+def pick_agent_general_YS(X,items, agents,players,criteria,weights):
+    gain_list=get_gain_function(X,agents,items,players,criteria,weights)
+    gain_list=np.asarray(gain_list)
+    max_score_player_index=np.argmax(gain_list)
+    return players[max_score_player_index]
+
+def get_gain_function(X,agents,items,players,criteria,weights):
+    gain_list=[]
+    if criteria=='LorenzDominance':
+        for player in players:
+            agent=agents[player-1]
+            bundle = get_bundle_from_allocation_matrix(X, items, player)
+            val=agent.valuation(bundle)
+            gain_list.append(-val)
+    if criteria=='WeightedLeximin':
+        for player in players:
+            agent=agents[player-1]
+            bundle = get_bundle_from_allocation_matrix(X, items, player)
+            val=agent.valuation(bundle)
+            w_i=weights[player-1]
+            gain_list.append(-val/w_i)
+    return gain_list
+
 
 def add_agent_to_exchange_graph(G,X,items,agents, agent_picked):
     G.add_node('s')
@@ -58,12 +107,19 @@ def add_agent_to_exchange_graph(G,X,items,agents, agent_picked):
             G.add_edge('s', i)
     return G
 
-def find_shortest_path(G):
-    try:
-        p = nx.shortest_path(G, source='s', target='t') 
-        return p
-    except:
-        return False
+def find_shortest_path(G,start,end):
+    queue = deque([(start, [start])])
+    while queue:
+        current_node, path = queue.popleft()
+        if current_node == end:
+            # print(path)
+            return path
+
+        for neighbor in G.neighbors(current_node):
+            if neighbor not in path:
+                new_path = path + [neighbor]
+                queue.append((neighbor, new_path))
+    return False
 
 def find_agent(agents,items,X,current_item_index,last_item_index):
     owners=get_owners_list(X,current_item_index)
@@ -103,7 +159,7 @@ def update_allocation(X,path_og,agents,items,agent_picked):
     X[last_item,0]-=1
     while len(path)>0:
         last_item=path.pop(len(path)-1)
-        #print('last item: ', last_item)
+        # print('last item: ', last_item)
         if len(path)>0:
             next_to_last_item=path[-1]
             current_agent=find_agent(agents,items,X,next_to_last_item,last_item)
@@ -196,7 +252,7 @@ def round_robin(agents, items):
     return X
 
 
-def yankee_swap(agents,items, plot_exchange_graph):
+def yankee_swap(agents,items, plot_exchange_graph=False):
     ## Initialize players, allocation, exchange_graph, and max utility
     players=initialize_players(agents)
     X=initialize_allocation_matrix(items, agents)
@@ -214,15 +270,15 @@ def yankee_swap(agents,items, plot_exchange_graph):
     start=time.process_time()
     while len(players)>0:
         count+=1
-        # print('STEP', count)
         agent_picked=pick_agent(X, max_items, items, agents,players)
+        # print('STEP', count)
         # print('Agent picked:',agent_picked)
         G=add_agent_to_exchange_graph(G,X,items,agents, agent_picked)
         if plot_exchange_graph:
             nx.draw(G, with_labels = True)
             plt.show()
 
-        path = find_shortest_path(G)
+        path = find_shortest_path(G,'s','t')
         # print('path found:', path)
         G.remove_node('s')
 
@@ -236,12 +292,181 @@ def yankee_swap(agents,items, plot_exchange_graph):
             G=update_exchange_graph(X,G,path,agents,items, agents_involved)
             # print('Current allocation:')
             # print(X)
-            # print('involved agents:', agents_involved)
+            #print('involved agents:', agents_involved)
             if plot_exchange_graph:
                 nx.draw(G, with_labels = True)
                 plt.show()
             time_steps.append(time.process_time()-start)
             agents_involved_arr.append(len(agents_involved))
+    return X,time_steps,agents_involved_arr
+
+def yankee_swap_hold_graph(agents,items, plot_exchange_graph=False):
+    ## Initialize players, allocation, exchange_graph, and max utility
+    players=initialize_players(agents)
+    X=initialize_allocation_matrix(items, agents)
+    # print('Initial allocation:')
+    # print(X)
+    graph=False
+    max_items=get_max_items(items)
+    ## Run Yankee Swap
+    count=0
+    time_steps=[]
+    agents_involved_arr=[]
+    start=time.process_time()
+    while len(players)>0:
+        count+=1
+        agent_picked=pick_agent(X, max_items, items, agents,players)
+        if not graph:
+            agent=agents[agent_picked-1]
+            list_desired_items=agent.get_desired_items_indexes(items)
+            bundle=get_bundle_from_allocation_matrix(X,items,agent_picked)
+            empty_seat_found=False
+            for desired_item in list_desired_items:
+                if X[desired_item,0]>0 and agent.marginal_contribution(bundle,items[desired_item])>0:
+                    X[desired_item,0]-=1
+                    X[desired_item,agent_picked]+=1
+                    time_steps.append(time.process_time()-start)
+                    agents_involved_arr.append(1)
+                    empty_seat_found=True
+                    break
+            if not empty_seat_found:
+                graph=True
+                G=build_exchange_graph(X,items, agents)
+        if graph:
+            G=add_agent_to_exchange_graph(G,X,items,agents, agent_picked)
+            if plot_exchange_graph:
+                nx.draw(G, with_labels = True)
+                plt.show()
+
+            path = find_shortest_path(G,'s','t')
+            #print('path found:', path)
+            G.remove_node('s')
+
+            if path== False:
+                players.remove(agent_picked)
+                time_steps.append(time.process_time()-start)
+                agents_involved_arr.append(0)
+            else:
+                #Given the path found, update allocation and exchange graph
+                X, agents_involved=update_allocation(X,path,agents,items,agent_picked)
+                G=update_exchange_graph(X,G,path,agents,items, agents_involved)
+                # print('Current allocation:')
+                # print(X)
+                #print('involved agents:', agents_involved)
+                if plot_exchange_graph:
+                    nx.draw(G, with_labels = True)
+                    plt.show()
+                time_steps.append(time.process_time()-start)
+                agents_involved_arr.append(len(agents_involved))
+    return X,time_steps,agents_involved_arr
+
+def original_yankee_swap(agents,items, plot_exchange_graph=False):
+    ## Initialize players, allocation, exchange_graph, and max utility
+    players=initialize_players(agents)
+    X=initialize_allocation_matrix(items, agents)
+    # print('Initial allocation:')
+    # print(X)
+    G=build_exchange_graph(X,items,agents)
+    if plot_exchange_graph:
+        nx.draw(G, with_labels = True)
+        plt.show()
+    max_items=get_max_items(items)
+    ## Run Yankee Swap
+    count=0
+    time_steps=[]
+    agents_involved_arr=[]
+    start=time.process_time()
+    while len(players)>0:
+        count+=1
+        agent_picked=pick_agent(X, max_items, items, agents,players)
+        # print('STEP', count)
+        # print('Agent picked:',agent_picked)
+        G=add_agent_to_exchange_graph(G,X,items,agents, agent_picked)
+        if plot_exchange_graph:
+            nx.draw(G, with_labels = True)
+            plt.show()
+
+        path = find_shortest_path(G,'s','t')
+        #print('path found:', path)
+        G.remove_node('s')
+
+        if path== False:
+            players.remove(agent_picked)
+            time_steps.append(time.process_time()-start)
+            agents_involved_arr.append(0)
+        else:
+            #Given the path found, update allocation and exchange graph
+            X, agents_involved=update_allocation(X,path,agents,items,agent_picked)
+            G=build_exchange_graph(X,items, agents)
+            # print('Current allocation:')
+            # print(X)
+            #print('involved agents:', agents_involved)
+            if plot_exchange_graph:
+                nx.draw(G, with_labels = True)
+                plt.show()
+            time_steps.append(time.process_time()-start)
+            agents_involved_arr.append(len(agents_involved))
+    return X,time_steps,agents_involved_arr
+            
+
+def general_yankee_swap(agents,items, plot_exchange_graph=False,criteria='LorenzDominance',weights=0):
+    ## Initialize players, allocation, exchange_graph, and max utility
+    players=initialize_players(agents)
+    X=initialize_allocation_matrix(items, agents)
+    # print('Initial allocation:')
+    # print(X)
+    graph=False
+    max_items=get_max_items(items)
+    ## Run Yankee Swap
+    count=0
+    time_steps=[]
+    agents_involved_arr=[]
+    start=time.process_time()
+    while len(players)>0:
+        count+=1
+        agent_picked=pick_agent_general_YS(X, items, agents,players,criteria, weights)
+        if not graph:
+            agent=agents[agent_picked-1]
+            list_desired_items=agent.get_desired_items_indexes(items)
+            bundle=get_bundle_from_allocation_matrix(X,items,agent_picked)
+            empty_seat_found=False
+            for desired_item in list_desired_items:
+                if X[desired_item,0]>0 and agent.marginal_contribution(bundle,items[desired_item])>0:
+                    X[desired_item,0]-=1
+                    X[desired_item,agent_picked]+=1
+                    time_steps.append(time.process_time()-start)
+                    agents_involved_arr.append(1)
+                    empty_seat_found=True
+                    break
+            if not empty_seat_found:
+                graph=True
+                G=build_exchange_graph(X,items, agents)
+        if graph:
+            G=add_agent_to_exchange_graph(G,X,items,agents, agent_picked)
+            if plot_exchange_graph:
+                nx.draw(G, with_labels = True)
+                plt.show()
+
+            path = find_shortest_path(G,'s','t')
+            #print('path found:', path)
+            G.remove_node('s')
+
+            if path== False:
+                players.remove(agent_picked)
+                time_steps.append(time.process_time()-start)
+                agents_involved_arr.append(0)
+            else:
+                #Given the path found, update allocation and exchange graph
+                X, agents_involved=update_allocation(X,path,agents,items,agent_picked)
+                G=update_exchange_graph(X,G,path,agents,items, agents_involved)
+                # print('Current allocation:')
+                # print(X)
+                #print('involved agents:', agents_involved)
+                if plot_exchange_graph:
+                    nx.draw(G, with_labels = True)
+                    plt.show()
+                time_steps.append(time.process_time()-start)
+                agents_involved_arr.append(len(agents_involved))
     return X,time_steps,agents_involved_arr
             
 

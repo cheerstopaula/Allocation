@@ -1,9 +1,10 @@
 # %%
 from agent_functions import Agent, gen_random_agents
 from item_functions import generate_items_from_schedule
-from allocation_functions import yankee_swap, SPIRE_algorithm, round_robin
+from allocation_functions import yankee_swap, SPIRE_algorithm, round_robin, original_yankee_swap, yankee_swap_hold_graph
 from metric_functions import utilitarian_welfare, nash_welfare, EF, EF_1, EF_X
 import matplotlib.pyplot as plt
+import networkx as nx
 import random
 import numpy as np
 
@@ -12,16 +13,45 @@ import numpy as np
 items=generate_items_from_schedule('fall2023schedule-2.xlsx')
 # for item in items:
 #     print('Course:',item.item_id,'Timeslot:',item.timeslot,'Capacity:',item.capacity)
-n=2000
-for seed in [0,1,2,3,4,5,6,7,8,9]:
+n=500
+for seed in [0]:
     random.seed(seed)
     np.random.seed(seed)
     agents=gen_random_agents(n,items)
-    for agent in agents:
-        print(agent.id, 'cap:', agent.cap)
-        print('desired items: ',agent.desired_items)
-    X,time_steps,agents_involved_arr=yankee_swap(agents, items, plot_exchange_graph=False)
-    np.savez(f'YS_{n}_{seed}.npz',X=X,time_steps=time_steps,num_agents_involved=agents_involved_arr)
+    # G1=original_yankee_swap(agents, items, plot_exchange_graph=False)
+    # G2=yankee_swap(agents, items, plot_exchange_graph=False)
+    # G3=yankee_swap_hold_graph(agents, items, plot_exchange_graph=False)
+
+    # print('original YS and regular: ', nx.is_isomorphic(G1,G2))
+    # print('original YS and hold graph: ',nx.is_isomorphic(G1,G3))
+    # print('regular and hold graph: ',nx.is_isomorphic(G2,G3))
+    
+    # for agent in agents:
+    #     print(agent.id, 'cap:', agent.cap)
+    #     print('desired items: ',agent.desired_items)
+    # X2,time_steps2,agents_involved_arr2=original_yankee_swap(agents, items, plot_exchange_graph=False)
+    # print('########################################')
+    # X1,time_steps1,agents_involved_arr1=yankee_swap(agents, items, plot_exchange_graph=False)
+    # print('########################################')
+    X3,time_steps3,agents_involved_arr3=yankee_swap_hold_graph(agents, items, plot_exchange_graph=False)
+
+    # print(np.count_nonzero(X1-X2))
+    # print(np.count_nonzero(X1-X3))
+    # print(np.count_nonzero(X2-X3))
+
+    # print(utilitarian_welfare(X1,agents,items), utilitarian_welfare(X2,agents,items),utilitarian_welfare(X3,agents,items))
+    # print(nash_welfare(X1,agents,items), nash_welfare(X2,agents,items),nash_welfare(X3,agents,items))
+    # print(EF(X1,agents,items), EF(X2,agents, items),EF(X3,agents, items))
+
+        # plt.plot(range(len(time_steps1)), time_steps1, color='C0', label='yankee swap')
+        # plt.plot(range(len(time_steps2)), time_steps2, color='C1', label='original')
+        # plt.plot(range(len(time_steps3)), time_steps3, color='C2', label='hold graph')
+        # plt.legend()
+        # plt.show()
+# plt.imshow(X1-X2)
+# plt.show()
+    np.savez(f'YS_hold_{n}_{seed}.npz',X=X3,time_steps=time_steps3,num_agents_involved=agents_involved_arr3)
+
 
 
 # ####TEST EXAMPLE
