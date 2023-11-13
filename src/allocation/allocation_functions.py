@@ -1,5 +1,5 @@
 
-from agent_functions import Agent
+from .agent_functions import Agent
 import networkx as nx
 from collections import deque
 import matplotlib.pyplot as plt

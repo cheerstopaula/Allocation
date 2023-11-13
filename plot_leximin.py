@@ -1,7 +1,7 @@
-from agent_functions import Agent, gen_random_agents
-from item_functions import generate_items_from_schedule
-from allocation_functions import yankee_swap, SPIRE_algorithm, round_robin
-from metric_functions import utilitarian_welfare, nash_welfare, EF, leximin
+from allocation.agent_functions import Agent, gen_random_agents
+from allocation.item_functions import generate_items_from_schedule
+from allocation.allocation_functions import yankee_swap, SPIRE_algorithm, round_robin
+from allocation.metric_functions import utilitarian_welfare, nash_welfare, EF, leximin
 import matplotlib.pyplot as plt
 import random
 import numpy as np
