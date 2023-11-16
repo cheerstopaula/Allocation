@@ -11,7 +11,7 @@ class Agent:
         - cap: maximum amount of items the agent can have 
         '''
         self.id=id
-        self.desired_items=desired_items
+        self.desired_items=set(desired_items)
         self.cap=cap
 
     def get_desired_items_indexes(self,items):
@@ -21,6 +21,24 @@ class Agent:
                 desired_items_indexes.append(item_index)
         return desired_items_indexes
 
+    def valuation_new(self,bundle, items):   
+        '''
+        Compute the utility the agent gets from a particular bundle of items 
+
+        @param bundle: list of items (from class Item)
+        @return: utility given to the agent by that bundle (int)
+        '''
+        # T=bundle.copy()
+        # # x=[*range(len(bundle))]
+        # # x.reverse()
+        # for g in bundle:
+        #     if items[g].item_id not in self.desired_items:
+        #         T.remove(g)
+        slots=set()
+        for g in bundle:
+            if items[g].item_id in self.desired_items:
+                slots.add(items[g].timeslot)
+        return min(len(slots), self.cap)
 
     def valuation(self,bundle):   
         '''
@@ -30,16 +48,14 @@ class Agent:
         @return: utility given to the agent by that bundle (int)
         '''
         T=bundle.copy()
-        x=[*range(len(bundle))]
-        x.reverse()
-        for i in x:
-            g=bundle[i]
+        # x=[*range(len(bundle))]
+        # x.reverse()
+        for g in bundle:
             if g.item_id not in self.desired_items:
-                T.pop(i)
-        slots=[]
-        for i in range(0,len(T)):
-            slots.append(T[i].timeslot)
-        slots=set(slots)
+                T.remove(g)
+        slots=set()
+        for g in T:
+            slots.add(g.timeslot)
         return min(len(slots), self.cap)
 
     def marginal_contribution(self,bundle,item):
