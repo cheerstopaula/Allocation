@@ -13,6 +13,8 @@ class Schedule:
         self.section=attributes[3]
         self.days=attributes[4]
         self.slot=attributes[5]
+        self.categories = attributes[6]
+        self.prof = attributes[7]
     def build_atributes(self, filename):
         '''
         Build, from excel file, all 6 Schedule atributes
@@ -20,10 +22,13 @@ class Schedule:
         classes = pd.read_excel(filename)
         subjects=classes['Subject'].to_list()
         catalog=classes['Catalog'].to_list()
-        capacity=classes['CICScapacity'].to_list()
+        capacity=classes['Enrl Capacity'].to_list()
         section=classes['Section'].to_list()
         days=classes['zc.days'].to_list()
         slot=classes['Mtg Time'].to_list()
-        return subjects, catalog, capacity, section, days, slot
+        categories=classes['Categories'].to_list()
+        prof=classes['InstructorPrint'].to_list()
+
+        return subjects, catalog, capacity, section, days, slot, categories, prof
 
     
