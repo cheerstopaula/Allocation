@@ -1,31 +1,43 @@
 # %%
 from agent_functions import Agent, gen_random_agents
 from item_functions import generate_items_from_schedule
-from allocation_functions import yankee_swap, SPIRE_algorithm, round_robin, original_yankee_swap, yankee_swap_hold_graph
+from allocation_functions import yankee_swap, SPIRE_algorithm, round_robin, original_yankee_swap, yankee_swap_hold_graph, general_yankee_swap
 from metric_functions import utilitarian_welfare, nash_welfare, EF, EF_1, EF_X
 import matplotlib.pyplot as plt
 import networkx as nx
 import random
 import numpy as np
 
+n=1000
+
+weights=[]
+for i in range(n):
+    if i<n/4:
+        weights.append(1)
+    elif i<n/2:
+        weights.append(2)
+    elif i<(3*n/4):
+        weights.append(3)
+    else:
+        weights.append(4)
+
 
 
 items=generate_items_from_schedule('fall2023schedule-2.xlsx')
-# for item in items:
-#     print('Course:',item.item_id,'Timeslot:',item.timeslot,'Capacity:',item.capacity)
-n=500
-for seed in [0]:
+for seed in [0,1,2,3,4]:
     random.seed(seed)
     np.random.seed(seed)
     agents=gen_random_agents(n,items)
-    # G1=original_yankee_swap(agents, items, plot_exchange_graph=False)
-    # G2=yankee_swap(agents, items, plot_exchange_graph=False)
-    # G3=yankee_swap_hold_graph(agents, items, plot_exchange_graph=False)
-
-    # print('original YS and regular: ', nx.is_isomorphic(G1,G2))
-    # print('original YS and hold graph: ',nx.is_isomorphic(G1,G3))
-    # print('regular and hold graph: ',nx.is_isomorphic(G2,G3))
+    # X3,time_steps3,agents_involved_arr3=general_yankee_swap(agents, items, plot_exchange_graph=False,criteria='WeightedLeximin', weights=weights)
+    X3,time_steps3,agents_involved_arr3=general_yankee_swap(agents, items, plot_exchange_graph=False)
+    np.savez(f'YS_general_{n}_{seed}.npz',X=X3,time_steps=time_steps3,num_agents_involved=agents_involved_arr3)
     
+
+
+
+
+
+
     # for agent in agents:
     #     print(agent.id, 'cap:', agent.cap)
     #     print('desired items: ',agent.desired_items)
@@ -33,8 +45,6 @@ for seed in [0]:
     # print('########################################')
     # X1,time_steps1,agents_involved_arr1=yankee_swap(agents, items, plot_exchange_graph=False)
     # print('########################################')
-    X3,time_steps3,agents_involved_arr3=yankee_swap_hold_graph(agents, items, plot_exchange_graph=False)
-
     # print(np.count_nonzero(X1-X2))
     # print(np.count_nonzero(X1-X3))
     # print(np.count_nonzero(X2-X3))
@@ -50,7 +60,7 @@ for seed in [0]:
         # plt.show()
 # plt.imshow(X1-X2)
 # plt.show()
-    np.savez(f'YS_hold_{n}_{seed}.npz',X=X3,time_steps=time_steps3,num_agents_involved=agents_involved_arr3)
+    
 
 
 

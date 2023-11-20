@@ -57,6 +57,7 @@ def EF_1(X, agents,items):
                         new_utility=agent.valuation(new_bundle)
                         if new_utility<=current_utility:
                             there_is_no_item=False
+                            break
                     if there_is_no_item:
                         envy_count+=1
     return envy_count
