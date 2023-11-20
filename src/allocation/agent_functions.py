@@ -1,4 +1,4 @@
-from item_functions import Item
+from .item_functions import Item
 import random
 
 class Agent:

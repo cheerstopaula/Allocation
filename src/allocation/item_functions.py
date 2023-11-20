@@ -1,4 +1,4 @@
-from data_utils2 import Schedule
+from .data_utils2 import Schedule
 
 class Item:
     def __init__(self,item_id, capacity,timeslot):

@@ -1,5 +1,5 @@
-from allocation_functions import get_bundle_from_allocation_matrix
-from agent_functions import Agent
+from .allocation_functions import get_bundle_from_allocation_matrix
+from .agent_functions import Agent
 import numpy as np
 
 def utilitarian_welfare(X, agents,items):
