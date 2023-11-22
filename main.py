@@ -1,8 +1,8 @@
 # %%
-from agent_functions import Agent, gen_random_agents
-from item_functions import generate_items_from_schedule
-from allocation_functions import yankee_swap, SPIRE_algorithm, round_robin, original_yankee_swap, yankee_swap_hold_graph, general_yankee_swap
-from metric_functions import utilitarian_welfare, nash_welfare, EF, EF_1, EF_X
+from allocation.agent_functions import Agent, gen_random_agents
+from allocation.item_functions import generate_items_from_schedule
+from allocation.allocation_functions import yankee_swap, SPIRE_algorithm, round_robin, original_yankee_swap, yankee_swap_hold_graph, general_yankee_swap
+from allocation.metric_functions import utilitarian_welfare, nash_welfare, EF, EF_1, EF_X
 import matplotlib.pyplot as plt
 import networkx as nx
 import random
