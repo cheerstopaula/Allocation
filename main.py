@@ -13,13 +13,13 @@ n=1000
 weights=[]
 for i in range(n):
     if i<n/4:
-        weights.append(1)
-    elif i<n/2:
-        weights.append(2)
-    elif i<(3*n/4):
-        weights.append(3)
-    else:
         weights.append(4)
+    elif i<n/2:
+        weights.append(3)
+    elif i<(3*n/4):
+        weights.append(2)
+    else:
+        weights.append(1)
 
 
 
