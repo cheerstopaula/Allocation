@@ -1,7 +1,7 @@
 # %%
 from allocation.agent_functions import Agent, gen_random_agents
 from allocation.item_functions import generate_items_from_schedule
-from allocation.allocation_functions import yankee_swap, SPIRE_algorithm, round_robin, original_yankee_swap, yankee_swap_hold_graph, general_yankee_swap
+from allocation.allocation_functions import yankee_swap, SPIRE_algorithm, round_robin, original_yankee_swap, yankee_swap_hold_graph, general_yankee_swap, vignesh_yankee_swap
 from allocation.metric_functions import utilitarian_welfare, nash_welfare, EF, EF_1, EF_X
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -29,8 +29,10 @@ for seed in [0,1,2,3,4]:
     np.random.seed(seed)
     agents=gen_random_agents(n,items)
     # X3,time_steps3,agents_involved_arr3=general_yankee_swap(agents, items, plot_exchange_graph=False,criteria='WeightedLeximin', weights=weights)
-    X3,time_steps3,agents_involved_arr3=general_yankee_swap(agents, items, plot_exchange_graph=False)
-    np.savez(f'YS_general_{n}_{seed}.npz',X=X3,time_steps=time_steps3,num_agents_involved=agents_involved_arr3)
+    # X3,time_steps3,agents_involved_arr3=general_yankee_swap(agents, items, plot_exchange_graph=False)
+    # np.savez(f'YS_general_{n}_{seed}.npz',X=X3,time_steps=time_steps3,num_agents_involved=agents_involved_arr3)
+    X3=vignesh_yankee_swap(agents, items)
+    np.savez(f'YS_vignesh_{n}_{seed}.npz',X=X3)
     
 
 

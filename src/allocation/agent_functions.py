@@ -20,6 +20,25 @@ class Agent:
             if items[item_index].item_id in self.desired_items:
                 desired_items_indexes.append(item_index)
         return desired_items_indexes
+    
+    def valuation_new(self,bundle, items):   
+        '''
+        Compute the utility the agent gets from a particular bundle of items 
+
+        @param bundle: list of items (from class Item)
+        @return: utility given to the agent by that bundle (int)
+        '''
+        # T=bundle.copy()
+        # # x=[*range(len(bundle))]
+        # # x.reverse()
+        # for g in bundle:
+        #     if items[g].item_id not in self.desired_items:
+        #         T.remove(g)
+        slots=set()
+        for g in bundle:
+            if items[g].item_id in self.desired_items:
+                slots.add(items[g].timeslot)
+        return min(len(slots), self.cap)
 
 
     def valuation(self,bundle):   
