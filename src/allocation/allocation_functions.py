@@ -614,7 +614,7 @@ def augment_path(i, item, previous_agent, previous_item, allocation_matrix, agen
     return new_allocation_matrix
 
 
-def vignesh_yankee_swap(agents,items,criteria='LorenzDominance',weights=0):
+def bfs_yankee_swap(agents,items,criteria='LorenzDominance',weights=0):
     n = len(agents)
     m = len(items)
     count = 0
@@ -630,7 +630,6 @@ def vignesh_yankee_swap(agents,items,criteria='LorenzDominance',weights=0):
         count += 1
         print("Iteration: %d" % count, end='\r')
         agent_picked = np.argmin(utility_vector)
-
         item, previous_agent, previous_item = get_distances(agent_picked, agents, items, allocation_matrix)
 
         if(item != -1):
@@ -641,7 +640,7 @@ def vignesh_yankee_swap(agents,items,criteria='LorenzDominance',weights=0):
             utility_vector[agent_picked] = 10000*m
             U.remove(agent_picked)
 
-    print("Vignesh YS USW:", np.sum(u_vector))
+    print("USW:", np.sum(u_vector))
 
     return allocation_matrix
             
