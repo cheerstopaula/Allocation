@@ -21,7 +21,7 @@ class Agent:
                 desired_items_indexes.append(item_index)
         return desired_items_indexes
     
-    def valuation_new(self,bundle, items):   
+    def valuation_index(self,bundle, items):   
         '''
         Compute the utility the agent gets from a particular bundle of items 
 
@@ -41,24 +41,43 @@ class Agent:
         return min(len(slots), self.cap)
 
 
-    def valuation(self,bundle):   
+    # def valuation(self,bundle):   
+    #     '''
+    #     Compute the utility the agent gets from a particular bundle of items 
+
+    #     @param bundle: list of items (from class Item)
+    #     @return: utility given to the agent by that bundle (int)
+    #     '''
+    #     T=bundle.copy()
+    #     x=[*range(len(bundle))]
+    #     x.reverse()
+    #     for i in x:
+    #         g=bundle[i]
+    #         if g.item_id not in self.desired_items:
+    #             T.pop(i)
+    #     slots=[]
+    #     for i in range(0,len(T)):
+    #         slots.append(T[i].timeslot)
+    #     slots=set(slots)
+    #     return min(len(slots), self.cap)
+
+    def valuation(self,bundle, items):   
         '''
         Compute the utility the agent gets from a particular bundle of items 
 
         @param bundle: list of items (from class Item)
         @return: utility given to the agent by that bundle (int)
         '''
-        T=bundle.copy()
-        x=[*range(len(bundle))]
-        x.reverse()
-        for i in x:
-            g=bundle[i]
-            if g.item_id not in self.desired_items:
-                T.pop(i)
-        slots=[]
-        for i in range(0,len(T)):
-            slots.append(T[i].timeslot)
-        slots=set(slots)
+        # T=bundle.copy()
+        # # x=[*range(len(bundle))]
+        # # x.reverse()
+        # for g in bundle:
+        #     if items[g].item_id not in self.desired_items:
+        #         T.remove(g)
+        slots=set()
+        for item in bundle:
+            if item.item_id in self.desired_items:
+                slots.add(item.timeslot)
         return min(len(slots), self.cap)
 
     def marginal_contribution(self,bundle,item):

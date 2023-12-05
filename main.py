@@ -3,6 +3,7 @@ from allocation.agent_functions import Agent, gen_random_agents
 from allocation.item_functions import generate_items_from_schedule
 from allocation.allocation_functions import yankee_swap, SPIRE_algorithm, round_robin, original_yankee_swap, yankee_swap_hold_graph, general_yankee_swap, vignesh_yankee_swap
 from allocation.metric_functions import utilitarian_welfare, nash_welfare, EF, EF_1, EF_X
+from allocation.test import check_allocation_matrix
 import matplotlib.pyplot as plt
 import networkx as nx
 import random
@@ -24,7 +25,7 @@ for i in range(n):
 
 
 items=generate_items_from_schedule('fall2023schedule-2.xlsx')
-for seed in [0,1,2,3,4]:
+for seed in [0]:
     random.seed(seed)
     np.random.seed(seed)
     agents=gen_random_agents(n,items)
@@ -32,7 +33,10 @@ for seed in [0,1,2,3,4]:
     # X3,time_steps3,agents_involved_arr3=general_yankee_swap(agents, items, plot_exchange_graph=False)
     # np.savez(f'YS_general_{n}_{seed}.npz',X=X3,time_steps=time_steps3,num_agents_involved=agents_involved_arr3)
     X3=vignesh_yankee_swap(agents, items)
-    np.savez(f'YS_vignesh_{n}_{seed}.npz',X=X3)
+    print(check_allocation_matrix(X3,items))
+    print(len(X3))
+    print(len(X3[0]))
+    # np.savez(f'YS_vignesh_{n}_{seed}.npz',X=X3)
     
 
 
