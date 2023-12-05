@@ -25,11 +25,12 @@ def gen_conflict_matrix(items):
             for i in range(len(items)):
                 item_times = [datetime.datetime.strptime(time, "%I:%M %p") for time in items[i].time.split(" - ")]
                 item_days = [d for d in items[i].days.split(' ')]
-                if (item_times[0] <= slot) and (slot <= item_times[1]):
+                if (item_times[0]-datetime.timedelta(minutes=14) <= slot) and (slot < item_times[1]):
                     if day in item_days:
                         day_slot_row[i] = 1
-            conflict_mat = np.vstack((conflict_mat, day_slot_row))
-            constraints = np.vstack((constraints, [1]))
+            if np.sum(day_slot_row) > 1:
+                conflict_mat = np.vstack((conflict_mat, day_slot_row))
+                constraints = np.vstack((constraints, [1]))
 
     for item in items:
         if item.course not in courses:
@@ -41,7 +42,8 @@ def gen_conflict_matrix(items):
         for i in range(len(items)):
             if (course == items[i].course):
                 course_row[i] = 1
-        conflict_mat = np.vstack((conflict_mat, course_row))
-        constraints = np.vstack((constraints, [1]))
+        if np.sum(course_row) > 1:
+            conflict_mat = np.vstack((conflict_mat, course_row))
+            constraints = np.vstack((constraints, [1]))
 
     return conflict_mat, constraints

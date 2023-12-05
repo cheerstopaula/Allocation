@@ -3,7 +3,7 @@ import numpy as np
 
 class Student2:
 
-    def __init__(self, items, G_conflicts, G_constraints, max_courses=6, cat_max=4, max_per_cat=4):
+    def __init__(self, items, G_conflicts, G_constraints, max_courses=6, cat_max=4, max_per_cat=3):
         self.items = items
         self.global_conflicts = G_conflicts
         self.global_constraints = G_constraints
@@ -27,7 +27,7 @@ class Student2:
         """Number of preferred categories"""
         idxs = np.arange(len(cats))
         np.random.shuffle(idxs)
-        for i in range(num_cats):                       # pick preferred categories randomly
+        for i in range(min(num_cats, len(cats))):                       # pick preferred categories randomly
             idx = idxs[i]
             pref_cats.append(cats[idx])
         print(pref_cats)
@@ -47,18 +47,6 @@ class Student2:
             pref_mat = np.vstack((pref_mat, cat_row))
             constraints = np.vstack((constraints, [max_per_cat]))
 
-        # """Cannot be in same course, multiple different sections"""
-        # seen_courses = []
-        # for course in pref_courses:                          # new row in preference matrix for each category
-        #     if course not in seen_courses:
-        #         seen_courses.append(course)
-        #         course_row = np.zeros(len(self.items))         # new entry in constraints for each category
-        #         for i in range(len(self.items)):
-        #             if (course == self.items[i].course):
-        #                 course_row[i] = 1
-        #         pref_mat = np.vstack((pref_mat, course_row))
-        #         constraints = np.vstack((constraints, [1]))
-
         """Maximum courses constraint"""
         class_max_row = np.ones(len(self.items))
         pref_mat = np.vstack((pref_mat, class_max_row))
@@ -74,15 +62,17 @@ class Student2:
 
     def valuation(self, bundle):
         self.update_alloc_mat(bundle)
+        if np.sum(self.alloc_mat) < len(bundle):
+            return min(len(bundle) - 1, 6)
         b1 = self.global_conflicts.dot(self.alloc_mat)
         for i in range(len(b1)):
             if b1[i][0] > self.global_constraints[i][0]:
-                return len(bundle) - 1
+                return min(len(bundle) - 1, 6)
         b2 = self.pref_mat.dot(self.alloc_mat)
         for i in range(len(b2)):
             if b2[i][0] > self.constraints[i][0]:
-                return len(bundle) - 1
-        return len(bundle)
+                return min(len(bundle) - 1, 6)
+        return min(len(bundle), 6)
 
     def exchange_contribution(self, bundle, og_item, new_item):
         '''
@@ -132,3 +122,10 @@ class Student2:
         T.append(item)
         new_val = self.valuation(T)
         return new_val-current_val
+    
+    def get_desired_items_indexes(self,items):
+        desired_items_indexes=[]
+        for item_index in range(len(items)):
+            if self.pref_mat[0][item_index] == 0:
+                desired_items_indexes.append(item_index)
+        return desired_items_indexes

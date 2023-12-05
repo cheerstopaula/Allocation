@@ -271,33 +271,38 @@ def yankee_swap(agents,items, plot_exchange_graph=False):
     while len(players)>0:
         count+=1
         agent_picked=pick_agent(X, max_items, items, agents,players)
-        # print('STEP', count)
-        # print('Agent picked:',agent_picked)
+        print('STEP', count)
+        #print('Agent picked:',agent_picked)
+        #print(1)
         G=add_agent_to_exchange_graph(G,X,items,agents, agent_picked)
         if plot_exchange_graph:
             nx.draw(G, with_labels = True)
             plt.show()
 
         path = find_shortest_path(G,'s','t')
-        # print('path found:', path)
+        #print('path found:', path)
+        #print(2)
         G.remove_node('s')
 
         if path== False:
             players.remove(agent_picked)
+            print('removed a player')
             time_steps.append(time.process_time()-start)
             agents_involved_arr.append(0)
         else:
             #Given the path found, update allocation and exchange graph
             X, agents_involved=update_allocation(X,path,agents,items,agent_picked)
             G=update_exchange_graph(X,G,path,agents,items, agents_involved)
-            # print('Current allocation:')
-            # print(X)
+            #print('Current allocation:')
+            #print(X)
             #print('involved agents:', agents_involved)
+            #print(3)
             if plot_exchange_graph:
                 nx.draw(G, with_labels = True)
                 plt.show()
             time_steps.append(time.process_time()-start)
             agents_involved_arr.append(len(agents_involved))
+            #print(4)
     return X,time_steps,agents_involved_arr
 
 def yankee_swap_hold_graph(agents,items, plot_exchange_graph=False):
@@ -339,7 +344,7 @@ def yankee_swap_hold_graph(agents,items, plot_exchange_graph=False):
                 plt.show()
 
             path = find_shortest_path(G,'s','t')
-            #print('path found:', path)
+            # print('path found:', path)
             G.remove_node('s')
 
             if path== False:
@@ -352,7 +357,7 @@ def yankee_swap_hold_graph(agents,items, plot_exchange_graph=False):
                 G=update_exchange_graph(X,G,path,agents,items, agents_involved)
                 # print('Current allocation:')
                 # print(X)
-                #print('involved agents:', agents_involved)
+                # print('involved agents:', agents_involved)
                 if plot_exchange_graph:
                     nx.draw(G, with_labels = True)
                     plt.show()
@@ -379,15 +384,15 @@ def original_yankee_swap(agents,items, plot_exchange_graph=False):
     while len(players)>0:
         count+=1
         agent_picked=pick_agent(X, max_items, items, agents,players)
-        # print('STEP', count)
-        # print('Agent picked:',agent_picked)
+        print('STEP', count)
+        print('Agent picked:',agent_picked)
         G=add_agent_to_exchange_graph(G,X,items,agents, agent_picked)
         if plot_exchange_graph:
             nx.draw(G, with_labels = True)
             plt.show()
 
         path = find_shortest_path(G,'s','t')
-        #print('path found:', path)
+        print('path found:', path)
         G.remove_node('s')
 
         if path== False:
@@ -398,9 +403,9 @@ def original_yankee_swap(agents,items, plot_exchange_graph=False):
             #Given the path found, update allocation and exchange graph
             X, agents_involved=update_allocation(X,path,agents,items,agent_picked)
             G=build_exchange_graph(X,items, agents)
-            # print('Current allocation:')
-            # print(X)
-            #print('involved agents:', agents_involved)
+            print('Current allocation:')
+            print(X)
+            print('involved agents:', agents_involved)
             if plot_exchange_graph:
                 nx.draw(G, with_labels = True)
                 plt.show()
