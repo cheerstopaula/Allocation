@@ -13,7 +13,8 @@ class Schedule:
         self.section=attributes[3]
         self.days=attributes[4]
         self.slot=attributes[5]
-        self.component=attributes[6]
+        self.categories = attributes[6]
+        self.prof = attributes[7]
     def build_atributes(self, filename):
         '''
         Build, from excel file, all 6 Schedule atributes
@@ -25,7 +26,7 @@ class Schedule:
         section=classes['Section'].to_list()
         days=classes['zc.days'].to_list()
         slot=classes['Mtg Time'].to_list()
-        component=classes['Component'].to_list()
-        return subjects, catalog, capacity, section, days, slot, component
+        categories=classes['Categories'].to_list()
+        prof=classes['InstructorPrint'].to_list()
 
-    
+        return subjects, catalog, capacity, section, days, slot, categories, prof

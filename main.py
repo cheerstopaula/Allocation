@@ -1,42 +1,60 @@
 # %%
 from allocation.agent_functions import Agent, gen_random_agents
+from allocation.student import Student
 from allocation.item_functions import generate_items_from_schedule
 from allocation.allocation_functions import yankee_swap, SPIRE_algorithm, round_robin, original_yankee_swap, yankee_swap_hold_graph, general_yankee_swap, bfs_yankee_swap
 from allocation.metric_functions import utilitarian_welfare, nash_welfare, EF, EF_1, EF_X
 from allocation.test import check_allocation_matrix
+from allocation.conflict_matrix import gen_conflict_matrix
 import matplotlib.pyplot as plt
 import networkx as nx
 import random
 import numpy as np
 
-n=1000
+n=100
 
-weights=[]
-for i in range(n):
-    if i<n/4:
-        weights.append(4)
-    elif i<n/2:
-        weights.append(3)
-    elif i<(3*n/4):
-        weights.append(2)
-    else:
-        weights.append(1)
+# weights=[]
+# for i in range(n):
+#     if i<n/4:
+#         weights.append(4)
+#     elif i<n/2:
+#         weights.append(3)
+#     elif i<(3*n/4):
+#         weights.append(2)
+#     else:
+#         weights.append(1)
 
 
+random.seed(0)
+np.random.seed(0)
+items=generate_items_from_schedule('Fall_2023_Schedule-2-2.xlsx')
 
-items=generate_items_from_schedule('fall2023schedule-2.xlsx')
-for seed in [0]:
-    random.seed(seed)
-    np.random.seed(seed)
-    agents=gen_random_agents(n,items)
-    # X3,time_steps3,agents_involved_arr3=general_yankee_swap(agents, items, plot_exchange_graph=False,criteria='WeightedLeximin', weights=weights)
-    # X3,time_steps3,agents_involved_arr3=general_yankee_swap(agents, items, plot_exchange_graph=False)
-    # np.savez(f'YS_general_{n}_{seed}.npz',X=X3,time_steps=time_steps3,num_agents_involved=agents_involved_arr3)
-    X3=bfs_yankee_swap(agents, items)
-    print(check_allocation_matrix(X3,items))
-    print(len(X3))
-    print(len(X3[0]))
-    # np.savez(f'YS_vignesh_{n}_{seed}.npz',X=X3)
+for item in items:
+    print(item.item_id)
+    print(item.timeslot)
+conflicts, constraints = gen_conflict_matrix(items)
+students=Student.gen_students(n,items,conflicts, constraints)
+agents=gen_random_agents(n,items)
+X,a,b=general_yankee_swap(students,items)
+# X=bfs_yankee_swap(students,items)
+print(X)
+print(check_allocation_matrix(X,items))
+# print(student1.pref_mat, student1.constraints)
+# print(student2.pref_mat, student2.constraints)
+# print(student3.pref_mat, student3.constraints)
+
+# for seed in [0]:
+#     random.seed(seed)
+#     np.random.seed(seed)
+#     agents=gen_random_agents(n,items)
+#     # X3,time_steps3,agents_involved_arr3=general_yankee_swap(agents, items, plot_exchange_graph=False,criteria='WeightedLeximin', weights=weights)
+#     # X3,time_steps3,agents_involved_arr3=general_yankee_swap(agents, items, plot_exchange_graph=False)
+#     # np.savez(f'YS_general_{n}_{seed}.npz',X=X3,time_steps=time_steps3,num_agents_involved=agents_involved_arr3)
+#     X3=bfs_yankee_swap(agents, items)
+#     print(check_allocation_matrix(X3,items))
+#     print(len(X3))
+#     print(len(X3[0]))
+#     # np.savez(f'YS_vignesh_{n}_{seed}.npz',X=X3)
     
 
 

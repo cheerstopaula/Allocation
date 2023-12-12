@@ -12,7 +12,7 @@ from queue import Queue
 def initialize_players(agents):
     players=[]
     for i in range(len(agents)):
-        players.append(i+1)
+        players.append(i)
     return players
 
 def initialize_allocation_matrix(items, agents):
@@ -20,7 +20,7 @@ def initialize_allocation_matrix(items, agents):
     m=len(agents)+1 
     X=np.zeros([n,m],dtype=int)
     for i in range(n):
-        X[i][0]=items[i].capacity
+        X[i][m-1]=items[i].capacity
     return X
 
 def initialize_exchange_graph(items):
@@ -59,7 +59,7 @@ def get_max_items(items):
 def pick_agent(X,max_items,items, agents,players):
     max_capacity=max_items
     for player in players:
-        agent=agents[player-1]
+        agent=agents[player]
         bundle=get_bundle_from_allocation_matrix(X, items, player)
         current_utility=agent.valuation(bundle)
         if current_utility<max_capacity:
@@ -109,12 +109,12 @@ def pick_agent(X,max_items,items, agents,players):
 #     return gain_list
 
 def get_gain_function(X,agents,items,agent_picked,criteria,weights):
-    agent=agents[agent_picked-1]
+    agent=agents[agent_picked]
     bundle=get_bundle_from_allocation_matrix(X,items, agent_picked)
     val=agent.valuation(bundle)
     if criteria=='LorenzDominance':
             return -val
-    w_i=weights[agent_picked-1]
+    w_i=weights[agent_picked]
     if criteria=='WeightedLeximin':
         return -val/w_i
     if criteria=='WeightedNash':
@@ -151,7 +151,7 @@ def get_bundle_indexes_from_allocation_matrix(X, agent_index):
 def find_agent(agents,items,X,current_item_index,last_item_index):
     owners=get_owners_list(X,current_item_index)
     for owner in owners:
-        agent=agents[owner-1]
+        agent=agents[owner]
         bundle=get_bundle_from_allocation_matrix(X,items,owner)
         if agent.exchange_contribution(bundle,items[current_item_index], items[last_item_index]):      
             return owner
@@ -162,7 +162,7 @@ def update_allocation(X,path_og,agents,items,agent_picked):
     path=path[1:-1]
     last_item=path[-1]
     agents_involved=[agent_picked]
-    X[last_item,0]-=1
+    X[last_item,len(agents)]-=1
     while len(path)>0:
         last_item=path.pop(len(path)-1)
         # print('last item: ', last_item)
@@ -208,7 +208,7 @@ def add_agent_to_exchange_graph(G,X,items,agents, agent_picked):
     bundle=get_bundle_from_allocation_matrix(X,items,agent_picked)
     for i in range(len(items)):
         g=items[i]
-        if agents[agent_picked-1].marginal_contribution(bundle,g)==1:
+        if agents[agent_picked].marginal_contribution(bundle,g)==1:
             G.add_edge('s', i)
     return G
 
@@ -220,7 +220,7 @@ def build_exchange_graph(X,items, agents):
     exchange_graph.add_node('t')
     for item_index in range(len(items)):
         item_1=items[item_index]
-        if X[item_index,0]>0:
+        if X[item_index,len(agents)]>0:
             exchange_graph.add_edge(item_index, 't')
         owners=get_owners_list(X,item_index)
         for item_2_index in range(len(items)):
@@ -229,7 +229,7 @@ def build_exchange_graph(X,items, agents):
                 exchangeable=False
                 for owner in owners:
                     if owner!=0:
-                        agent=agents[owner-1]        
+                        agent=agents[owner]        
                         bundle_owner=get_bundle_from_allocation_matrix(X, items, owner)
                         willing_owner=agent.exchange_contribution(bundle_owner,item_1, item_2)
                         if willing_owner:
@@ -243,7 +243,7 @@ def update_exchange_graph(X,G,path_og,agents,items, agents_involved):
     path=path_og.copy()
     path=path[1:-1]
     last_item=path[-1]
-    if X[last_item,0]==0:
+    if X[last_item,len(agents)]==0:
         G.remove_edge(last_item,'t')
     for agent_index in agents_involved:
         bundle_indexes=get_bundle_indexes_from_allocation_matrix(X,agent_index)
@@ -255,8 +255,8 @@ def update_exchange_graph(X,G,path_og,agents,items, agents_involved):
                     item_2=items[item_2_idx]
                     exchangeable=False
                     for owner in owners:
-                        if owner!=0:
-                            agent=agents[owner-1]        
+                        if owner!=len(agents):
+                            agent=agents[owner]        
                             bundle_owner=get_bundle_from_allocation_matrix(X, items, owner)
                             willing_owner=agent.exchange_contribution(bundle_owner,item_1, item_2)
                             if willing_owner:
@@ -273,19 +273,19 @@ def update_exchange_graph(X,G,path_og,agents,items, agents_involved):
 
 def SPIRE_algorithm(agents, items):
     X=initialize_allocation_matrix(items, agents)
-    agent_index=1
+    agent_index=0
     for agent in agents:
         bundle=[]
         desired_items=agent.get_desired_items_indexes(items)
         for item in desired_items:
-            if X[item,0]>0:
+            if X[item,len(agents)]>0:
                 current_val=agent.valuation(bundle)
                 new_bundle=bundle.copy()
                 new_bundle.append(items[item])
                 new_valuation=agent.valuation(new_bundle)
                 if new_valuation>current_val:
                     X[item,agent_index]=1
-                    X[item,0]-=1
+                    X[item,len(agents)]-=1
                     bundle=new_bundle.copy()
         agent_index+=1
     return X
@@ -297,11 +297,11 @@ def round_robin(agents, items):
         for player in players: 
             val=0
             current_item=[]
-            agent=agents[player-1]
+            agent=agents[player]
             desired_items=agent.get_desired_items_indexes(items)
             bundle=get_bundle_from_allocation_matrix(X, items, player)
             for item in desired_items:
-                if X[item,0]>0:
+                if X[item,len(agents)]>0:
                     current_val=agent.marginal_contribution(bundle,items[item])
                     if current_val>val:
                         current_item.clear()
@@ -309,7 +309,7 @@ def round_robin(agents, items):
                         val=current_val
             if len(current_item)>0:
                 X[current_item[0],player]=1
-                X[current_item[0],0]-=1
+                X[current_item[0],len(agents)]-=1
             else:
                 players.remove(player)
     return X
@@ -321,10 +321,10 @@ def round_robin_weights(agents, items, weights):
     while len(players)>0:
         weight=weights_aux[0]
         for player in players: 
-            if weights[player-1]==weight:
+            if weights[player]==weight:
                 val=0
                 current_item=[]
-                agent=agents[player-1]
+                agent=agents[player]
                 desired_items=agent.get_desired_items_indexes(items)
                 bundle=get_bundle_from_allocation_matrix(X, items, player)
                 for item in desired_items:
@@ -342,44 +342,45 @@ def round_robin_weights(agents, items, weights):
                     weights_aux.pop(0)
     return X
 
-def yankee_swap(agents,items, plot_exchange_graph=False):
-    '''Vanilla Yankee Swap'''
-    players=initialize_players(agents)
-    X=initialize_allocation_matrix(items, agents)
-    G=initialize_exchange_graph(items)
-    if plot_exchange_graph:
-        nx.draw(G, with_labels = True)
-        plt.show()
-    max_items=get_max_items(items)
-    count=0
-    time_steps=[]
-    agents_involved_arr=[]
-    start=time.process_time()
-    while len(players)>0:
-        count+=1
-        agent_picked=pick_agent(X, max_items, items, agents,players)
-        print("Iteration: %d" % count, end='\r')
-        G=add_agent_to_exchange_graph(G,X,items,agents, agent_picked)
-        if plot_exchange_graph:
-            nx.draw(G, with_labels = True)
-            plt.show()
+'''Instead of yankee_swap use general yankee swap with default parameters'''
+# def yankee_swap(agents,items, plot_exchange_graph=False):
+#     '''Vanilla Yankee Swap'''
+#     players=initialize_players(agents)
+#     X=initialize_allocation_matrix(items, agents)
+#     G=initialize_exchange_graph(items)
+#     if plot_exchange_graph:
+#         nx.draw(G, with_labels = True)
+#         plt.show()
+#     max_items=get_max_items(items)
+#     count=0
+#     time_steps=[]
+#     agents_involved_arr=[]
+#     start=time.process_time()
+#     while len(players)>0:
+#         count+=1
+#         agent_picked=pick_agent(X, max_items, items, agents,players)
+#         print("Iteration: %d" % count, end='\r')
+#         G=add_agent_to_exchange_graph(G,X,items,agents, agent_picked)
+#         if plot_exchange_graph:
+#             nx.draw(G, with_labels = True)
+#             plt.show()
 
-        path = find_shortest_path(G,'s','t')
-        G.remove_node('s')
+#         path = find_shortest_path(G,'s','t')
+#         G.remove_node('s')
 
-        if path== False:
-            players.remove(agent_picked)
-            time_steps.append(time.process_time()-start)
-            agents_involved_arr.append(0)
-        else:
-            X, agents_involved=update_allocation(X,path,agents,items,agent_picked)
-            G=update_exchange_graph(X,G,path,agents,items, agents_involved)
-            if plot_exchange_graph:
-                nx.draw(G, with_labels = True)
-                plt.show()
-            time_steps.append(time.process_time()-start)
-            agents_involved_arr.append(len(agents_involved))
-    return X,time_steps,agents_involved_arr
+#         if path== False:
+#             players.remove(agent_picked)
+#             time_steps.append(time.process_time()-start)
+#             agents_involved_arr.append(0)
+#         else:
+#             X, agents_involved=update_allocation(X,path,agents,items,agent_picked)
+#             G=update_exchange_graph(X,G,path,agents,items, agents_involved)
+#             if plot_exchange_graph:
+#                 nx.draw(G, with_labels = True)
+#                 plt.show()
+#             time_steps.append(time.process_time()-start)
+#             agents_involved_arr.append(len(agents_involved))
+#     return X,time_steps,agents_involved_arr
 
 def yankee_swap_hold_graph(agents,items, plot_exchange_graph=False):
     '''Vanilla Yankee Swap holding the generation of ex. graph until first transfer occurs'''
@@ -395,7 +396,7 @@ def yankee_swap_hold_graph(agents,items, plot_exchange_graph=False):
         count+=1
         agent_picked=pick_agent(X, max_items, items, agents,players)
         if not graph:
-            agent=agents[agent_picked-1]
+            agent=agents[agent_picked]
             list_desired_items=agent.get_desired_items_indexes(items)
             bundle=get_bundle_from_allocation_matrix(X,items,agent_picked)
             empty_seat_found=False
@@ -486,8 +487,9 @@ def general_yankee_swap(agents,items, plot_exchange_graph=False,criteria='Lorenz
     start=time.process_time()
     while len(players)>0:
         print("Iteration: %d" % count, end='\r')
+        # print("Iteration: %d" % count)
         count+=1
-        agent_picked=np.argmax(gain_vector)+1
+        agent_picked=np.argmax(gain_vector)
         G=add_agent_to_exchange_graph(G,X,items,agents, agent_picked)
         if plot_exchange_graph:
             nx.draw(G, with_labels = True)
@@ -498,13 +500,13 @@ def general_yankee_swap(agents,items, plot_exchange_graph=False,criteria='Lorenz
 
         if path== False:
             players.remove(agent_picked)
-            gain_vector[agent_picked-1]=float('-inf')
+            gain_vector[agent_picked]=float('-inf')
             time_steps.append(time.process_time()-start)
             agents_involved_arr.append(0)
         else:
             X, agents_involved=update_allocation(X,path,agents,items,agent_picked)
             G=update_exchange_graph(X,G,path,agents,items, agents_involved)
-            gain_vector[agent_picked-1]=get_gain_function(X,agents, items, agent_picked,criteria,weights)
+            gain_vector[agent_picked]=get_gain_function(X,agents, items, agent_picked,criteria,weights)
             if plot_exchange_graph:
                 nx.draw(G, with_labels = True)
                 plt.show()

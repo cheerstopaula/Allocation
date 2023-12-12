@@ -61,7 +61,7 @@ class Agent:
     #     slots=set(slots)
     #     return min(len(slots), self.cap)
 
-    def valuation(self,bundle, items):   
+    def valuation(self,bundle):   
         '''
         Compute the utility the agent gets from a particular bundle of items 
 
