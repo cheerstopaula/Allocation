@@ -2,7 +2,7 @@
 from allocation.agent_functions import Agent, gen_random_agents
 from allocation.student import Student
 from allocation.item_functions import generate_items_from_schedule
-from allocation.allocation_functions import yankee_swap, SPIRE_algorithm, round_robin, original_yankee_swap, yankee_swap_hold_graph, general_yankee_swap, bfs_yankee_swap
+from allocation.allocation_functions import SPIRE_algorithm, round_robin, original_yankee_swap, yankee_swap_hold_graph, general_yankee_swap, bfs_yankee_swap
 from allocation.metric_functions import utilitarian_welfare, nash_welfare, EF, EF_1, EF_X
 from allocation.test import check_allocation_matrix
 from allocation.conflict_matrix import gen_conflict_matrix
@@ -11,7 +11,12 @@ import networkx as nx
 import random
 import numpy as np
 
-n=100
+
+
+
+
+
+n=10
 
 # weights=[]
 # for i in range(n):
@@ -28,17 +33,32 @@ n=100
 random.seed(0)
 np.random.seed(0)
 items=generate_items_from_schedule('Fall_2023_Schedule-2-2.xlsx')
-
+# items=generate_items_from_schedule('fall2023schedule-2.xlsx')
+agent1=Agent('student1',[items[0].item_id, items[1].item_id,  items[20].item_id, items[30].item_id,items[25].item_id,items[40].item_id], 10)
+agent2=Agent('student1',[items[0].item_id, items[1].item_id,  items[20].item_id, items[30].item_id], 10)
+agent3=Agent('student1',[items[0].item_id, items[1].item_id], 10)
+agent4=Agent('student1',[items[0].item_id], 10)
+agents=[agent1, agent2,agent3, agent4]
+items[0].capacity=1
+items[1].capacity=1
+items[20].capacity=1
+items[25].capacity=1
+items[30].capacity=1
+items[40].capacity=1
+items=[items[0], items[1],items[20],items[25], items[30], items[40]]
 for item in items:
     print(item.item_id)
     print(item.timeslot)
-conflicts, constraints = gen_conflict_matrix(items)
-students=Student.gen_students(n,items,conflicts, constraints)
-agents=gen_random_agents(n,items)
-X,a,b=general_yankee_swap(students,items)
+# conflicts, constraints = gen_conflict_matrix(items)
+# students=Student.gen_students(n,items,conflicts, constraints)
+# agents=gen_random_agents(n,items)
+X,a,b=general_yankee_swap(agents,items)
 # X=bfs_yankee_swap(students,items)
 print(X)
 print(check_allocation_matrix(X,items))
+print(utilitarian_welfare(X, agents, items))
+print(nash_welfare(X,agents, items))
+
 # print(student1.pref_mat, student1.constraints)
 # print(student2.pref_mat, student2.constraints)
 # print(student3.pref_mat, student3.constraints)
