@@ -52,16 +52,21 @@ for item in items:
 # conflicts, constraints = gen_conflict_matrix(items)
 # students=Student.gen_students(n,items,conflicts, constraints)
 # agents=gen_random_agents(n,items)
-X,a,b=general_yankee_swap(agents,items)
+X,a,b=general_yankee_swap(agents,items, plot_exchange_graph=False)
 # X=bfs_yankee_swap(students,items)
 print(X)
 print(check_allocation_matrix(X,items))
-print(utilitarian_welfare(X, agents, items))
-print(nash_welfare(X,agents, items))
-print(leximin(X,agents, items))
-print(EF(X,agents, items))
-print(EF_1(X,agents, items))
-print(EF_X(X,agents, items))
+val_counts=[agent.val_count for agent in agents]
+print(val_counts)
+print(sum(val_counts))
+
+
+# print(utilitarian_welfare(X, agents, items))
+# print(nash_welfare(X,agents, items))
+# print(leximin(X,agents, items))
+# print(EF(X,agents, items))
+# print(EF_1(X,agents, items))
+# print(EF_X(X,agents, items))
 
 # print(student1.pref_mat, student1.constraints)
 # print(student2.pref_mat, student2.constraints)

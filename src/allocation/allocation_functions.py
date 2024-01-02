@@ -261,6 +261,7 @@ def update_exchange_graph(X,G,path_og,agents,items, agents_involved):
                             willing_owner=agent.exchange_contribution(bundle_owner,item_1, item_2)
                             if willing_owner:
                                 exchangeable=True
+                                break
                     if exchangeable:
                         if not G.has_edge(item_idx, item_2_idx):
                             G.add_edge(item_idx,item_2_idx)
@@ -492,6 +493,8 @@ def general_yankee_swap(agents,items, plot_exchange_graph=False,criteria='Lorenz
         agent_picked=np.argmax(gain_vector)
         G=add_agent_to_exchange_graph(G,X,items,agents, agent_picked)
         if plot_exchange_graph:
+            val_counts=[agent.val_count for agent in agents]
+            print(val_counts)
             nx.draw(G, with_labels = True)
             plt.show()
 
@@ -508,6 +511,8 @@ def general_yankee_swap(agents,items, plot_exchange_graph=False,criteria='Lorenz
             G=update_exchange_graph(X,G,path,agents,items, agents_involved)
             gain_vector[agent_picked]=get_gain_function(X,agents, items, agent_picked,criteria,weights)
             if plot_exchange_graph:
+                val_counts=[agent.val_count for agent in agents]
+                print(val_counts)
                 nx.draw(G, with_labels = True)
                 plt.show()
             time_steps.append(time.process_time()-start)

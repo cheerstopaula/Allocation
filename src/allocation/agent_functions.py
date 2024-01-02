@@ -13,6 +13,7 @@ class Agent:
         self.id=id
         self.desired_items=desired_items
         self.cap=cap
+        self.val_count=0
 
     def get_desired_items_indexes(self,items):
         desired_items_indexes=[]
@@ -22,6 +23,7 @@ class Agent:
         return desired_items_indexes
     
     def valuation_index(self,bundle, items):   
+        self.val_count+=1
         '''
         Compute the utility the agent gets from a particular bundle of items 
 
@@ -62,6 +64,7 @@ class Agent:
     #     return min(len(slots), self.cap)
 
     def valuation(self,bundle):   
+        self.val_count+=1
         '''
         Compute the utility the agent gets from a particular bundle of items 
 
