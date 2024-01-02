@@ -88,11 +88,12 @@ def leximin(X,agents,items):
     valuations=[]
     for agent_index in range(len(agents)):
         agent=agents[agent_index]
-        bundle=get_bundle_from_allocation_matrix(X,items,agent_index+1)
+        bundle=get_bundle_from_allocation_matrix(X,items,agent_index)
         val=agent.valuation(bundle)
         valuations.append(val)
     valuations.sort()
     valuations.reverse()
     return valuations
+
 
 

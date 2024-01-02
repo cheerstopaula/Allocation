@@ -3,7 +3,7 @@ from allocation.agent_functions import Agent, gen_random_agents
 from allocation.student import Student
 from allocation.item_functions import generate_items_from_schedule
 from allocation.allocation_functions import SPIRE_algorithm, round_robin, original_yankee_swap, yankee_swap_hold_graph, general_yankee_swap, bfs_yankee_swap
-from allocation.metric_functions import utilitarian_welfare, nash_welfare, EF, EF_1, EF_X
+from allocation.metric_functions import utilitarian_welfare, nash_welfare, EF, EF_1, EF_X, leximin
 from allocation.test import check_allocation_matrix
 from allocation.conflict_matrix import gen_conflict_matrix
 import matplotlib.pyplot as plt
@@ -58,6 +58,10 @@ print(X)
 print(check_allocation_matrix(X,items))
 print(utilitarian_welfare(X, agents, items))
 print(nash_welfare(X,agents, items))
+print(leximin(X,agents, items))
+print(EF(X,agents, items))
+print(EF_1(X,agents, items))
+print(EF_X(X,agents, items))
 
 # print(student1.pref_mat, student1.constraints)
 # print(student2.pref_mat, student2.constraints)
