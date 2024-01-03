@@ -206,10 +206,12 @@ def find_shortest_path(G,start,end):
 def add_agent_to_exchange_graph(G,X,items,agents, agent_picked):
     G.add_node('s')
     bundle=get_bundle_from_allocation_matrix(X,items,agent_picked)
-    for i in range(len(items)):
+    agent=agents[agent_picked]
+    for i in agent.get_desired_items_indexes(items):
         g=items[i]
-        if agents[agent_picked].marginal_contribution(bundle,g)==1:
-            G.add_edge('s', i)
+        if g not in bundle:
+            if agent.marginal_contribution(bundle,g)==1:
+                G.add_edge('s', i)
     return G
 
 
@@ -256,7 +258,7 @@ def update_exchange_graph(X,G,path_og,agents,items, agents_involved):
                     exchangeable=False
                     for owner in owners:
                         if owner!=len(agents):
-                            agent=agents[owner]        
+                            agent=agents[owner]       
                             bundle_owner=get_bundle_from_allocation_matrix(X, items, owner)
                             willing_owner=agent.exchange_contribution(bundle_owner,item_1, item_2)
                             if willing_owner:
@@ -493,8 +495,6 @@ def general_yankee_swap(agents,items, plot_exchange_graph=False,criteria='Lorenz
         agent_picked=np.argmax(gain_vector)
         G=add_agent_to_exchange_graph(G,X,items,agents, agent_picked)
         if plot_exchange_graph:
-            val_counts=[agent.val_count for agent in agents]
-            print(val_counts)
             nx.draw(G, with_labels = True)
             plt.show()
 
@@ -510,9 +510,8 @@ def general_yankee_swap(agents,items, plot_exchange_graph=False,criteria='Lorenz
             X, agents_involved=update_allocation(X,path,agents,items,agent_picked)
             G=update_exchange_graph(X,G,path,agents,items, agents_involved)
             gain_vector[agent_picked]=get_gain_function(X,agents, items, agent_picked,criteria,weights)
+
             if plot_exchange_graph:
-                val_counts=[agent.val_count for agent in agents]
-                print(val_counts)
                 nx.draw(G, with_labels = True)
                 plt.show()
             time_steps.append(time.process_time()-start)

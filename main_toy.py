@@ -34,7 +34,21 @@ random.seed(0)
 np.random.seed(0)
 items=generate_items_from_schedule('Fall_2023_Schedule-2-2.xlsx')
 # items=generate_items_from_schedule('fall2023schedule-2.xlsx')
-agents=gen_random_agents(n,items)
+agent1=Agent('student1',[items[0].item_id, items[1].item_id,  items[20].item_id, items[30].item_id,items[25].item_id,items[40].item_id], 10)
+agent2=Agent('student1',[items[0].item_id, items[1].item_id,  items[20].item_id, items[30].item_id], 10)
+agent3=Agent('student1',[items[0].item_id, items[1].item_id], 10)
+agent4=Agent('student1',[items[0].item_id], 10)
+agents=[agent1, agent2,agent3, agent4]
+items[0].capacity=1
+items[1].capacity=1
+items[20].capacity=1
+items[25].capacity=1
+items[30].capacity=1
+items[40].capacity=1
+items=[items[0], items[1],items[20],items[25], items[30], items[40]]
+for item in items:
+    print(item.item_id)
+    print(item.timeslot)
 # conflicts, constraints = gen_conflict_matrix(items)
 # students=Student.gen_students(n,items,conflicts, constraints)
 # agents=gen_random_agents(n,items)
