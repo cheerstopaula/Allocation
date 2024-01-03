@@ -240,6 +240,19 @@ def build_exchange_graph(X,items, agents):
                     exchange_graph.add_edge(item_index,item_2_index)
     return exchange_graph
 
+def get_multiple_agents_desired_items(agents_indexes,agents,items):
+    lis=[]
+    for agent_index in agents_indexes:
+        agent=agents[agent_index]
+        lis=lis+agent.get_desired_items_indexes(items)
+    return list(set(lis))
+
+def get_multiple_agents_bundles(agents_indexes,X):
+    lis=[]
+    for agent_index in agents_indexes:
+        lis=lis+get_bundle_indexes_from_allocation_matrix(X,agent_index)
+    return list(set(lis))
+
 
 def update_exchange_graph(X,G,path_og,agents,items, agents_involved):
     path=path_og.copy()
@@ -247,29 +260,32 @@ def update_exchange_graph(X,G,path_og,agents,items, agents_involved):
     last_item=path[-1]
     if X[last_item,len(agents)]==0:
         G.remove_edge(last_item,'t')
-    for agent_index in agents_involved:
-        bundle_indexes=get_bundle_indexes_from_allocation_matrix(X,agent_index)
-        for item_idx in bundle_indexes:
-            item_1=items[item_idx]
-            owners=get_owners_list(X,item_idx)
-            for item_2_idx in range(len(items)):
-                if item_2_idx!=item_idx:
-                    item_2=items[item_2_idx]
-                    exchangeable=False
-                    for owner in owners:
-                        if owner!=len(agents):
-                            agent=agents[owner]       
-                            bundle_owner=get_bundle_from_allocation_matrix(X, items, owner)
-                            willing_owner=agent.exchange_contribution(bundle_owner,item_1, item_2)
-                            if willing_owner:
-                                exchangeable=True
-                                break
-                    if exchangeable:
-                        if not G.has_edge(item_idx, item_2_idx):
-                            G.add_edge(item_idx,item_2_idx)
-                    else:
-                        if G.has_edge(item_idx, item_2_idx):
-                            G.remove_edge(item_idx,item_2_idx)
+    agents_involved_desired_items=get_multiple_agents_desired_items(agents_involved,agents,items)
+    agents_involved_bundles=get_multiple_agents_bundles(agents_involved, X)
+    for item_idx in agents_involved_bundles:
+        item_1=items[item_idx]
+        owners=list(get_owners_list(X,item_idx))
+        if len(agents) in owners:
+            owners.remove(len(agents))
+        owners_desired_items=get_multiple_agents_desired_items(owners,agents,items)
+        items_to_loop_over=list(set(agents_involved_desired_items+owners_desired_items))
+        for item_2_idx in items_to_loop_over:
+            if item_2_idx!=item_idx:
+                item_2=items[item_2_idx]
+                exchangeable=False
+                for owner in owners:
+                    agent=agents[owner]       
+                    bundle_owner=get_bundle_from_allocation_matrix(X, items, owner)
+                    willing_owner=agent.exchange_contribution(bundle_owner,item_1, item_2)
+                    if willing_owner:
+                        exchangeable=True
+                        break
+                if exchangeable:
+                    if not G.has_edge(item_idx, item_2_idx):
+                        G.add_edge(item_idx,item_2_idx)
+                else:
+                    if G.has_edge(item_idx, item_2_idx):
+                        G.remove_edge(item_idx,item_2_idx)
     return G
 
 '''Allocation algorithms'''

@@ -16,7 +16,7 @@ import numpy as np
 
 
 
-n=10
+n=100
 
 # weights=[]
 # for i in range(n):
@@ -47,12 +47,12 @@ print(val_counts)
 print(sum(val_counts))
 
 
-# print(utilitarian_welfare(X, agents, items))
-# print(nash_welfare(X,agents, items))
-# print(leximin(X,agents, items))
-# print(EF(X,agents, items))
-# print(EF_1(X,agents, items))
-# print(EF_X(X,agents, items))
+print(utilitarian_welfare(X, agents, items))
+print(nash_welfare(X,agents, items))
+print(leximin(X,agents, items))
+print(EF(X,agents, items))
+print(EF_1(X,agents, items))
+print(EF_X(X,agents, items))
 
 # print(student1.pref_mat, student1.constraints)
 # print(student2.pref_mat, student2.constraints)
